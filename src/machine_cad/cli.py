@@ -12,24 +12,24 @@ from .pipeline import build, demo, get_build, inspect
 
 def project_root() -> Path:
     root = Path(os.environ.get("MACHINE_CAD_ROOT", Path.cwd())).resolve()
-    if not (root / "configs" / "m01.json").is_file():
+    if not (root / "configs" / "pocket_pal.json").is_file():
         raise ValueError("Run from the project folder or set MACHINE_CAD_ROOT")
     return root
 
 
 def compact(report: dict) -> dict:
     return {key: report[key] for key in ("build_id", "status", "artifact_directory", "fabrication_exports",
-                                        "failures", "suggested_max_travel_mm", "source_sha256")}
+                                        "failures", "recipe", "sequence_frames", "source_sha256")}
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Rebuildable M01 gantry CAD and agent tools")
+    parser = argparse.ArgumentParser(description="Rebuildable Pocket Pal CAD and agent tools")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("build", "check"):
         command = commands.add_parser(name)
         command.add_argument("--patch", default="{}", help="JSON object of parameter overrides")
         if name == "build":
-            command.add_argument("--label", default="m01")
+            command.add_argument("--label", default="pocket-pal")
     commands.add_parser("demo")
     commands.add_parser("parameters")
     report_cmd = commands.add_parser("inspect")
@@ -52,7 +52,7 @@ def main() -> int:
                 patch = json.loads(args.patch)
                 if not isinstance(patch, dict):
                     raise ValueError("--patch must contain a JSON object")
-                result = inspect(root, patch)[2]
+                result = inspect(root, patch)[4]
             elif args.command == "demo":
                 result = demo(root)
             elif args.command == "parameters":

@@ -20,7 +20,7 @@ jobs:
         run: docker compose build dev
       - name: Geometry, STEP roundtrip and real MCP protocol tests
         run: docker compose run --rm -T dev python -m unittest discover -s tests -v
-      - name: Build pass, collision failure and repaired revisions
+      - name: Build pass, overfill failure and repaired revisions
         run: docker compose run --rm -T dev python -m machine_cad demo
       - uses: actions/upload-artifact@v7
         if: always()

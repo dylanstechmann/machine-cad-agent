@@ -1,62 +1,58 @@
-"""Explicit units and bounded inputs, independent of a desktop CAD session."""
+"""Explicit dimensions, recipe volumes, and nominal control limits."""
 
 import json
 from pathlib import Path
-
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Parameters(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
-
-    width_mm: float = Field(default=600.0, ge=200, le=2000)
-    depth_mm: float = Field(default=400.0, ge=150, le=1500)
-    height_mm: float = Field(default=360.0, ge=150, le=1500)
-    frame_mm: float = Field(default=20.0, ge=10, le=60)
-    tube_wall_mm: float = Field(default=2.0, ge=1, le=8)
-    rail_diameter_mm: float = Field(default=12.0, ge=6, le=30)
-    rail_spacing_mm: float = Field(default=160.0, ge=50, le=1000)
-    rail_axis_above_frame_mm: float = Field(default=24.0, ge=10, le=100)
-    support_width_mm: float = Field(default=28.0, ge=10, le=80)
-    support_depth_mm: float = Field(default=30.0, ge=12, le=100)
-    support_height_mm: float = Field(default=36.0, ge=20, le=150)
-    carriage_width_mm: float = Field(default=100.0, ge=50, le=300)
-    carriage_depth_mm: float = Field(default=200.0, ge=80, le=1200)
-    plate_thickness_mm: float = Field(default=8.0, ge=3, le=25)
-    bearing_length_mm: float = Field(default=40.0, ge=20, le=100)
-    bearing_depth_mm: float = Field(default=30.0, ge=16, le=100)
-    bearing_height_mm: float = Field(default=20.0, ge=12, le=80)
-    radial_clearance_mm: float = Field(default=0.25, ge=0.05, le=1.0)
-    minimum_clearance_mm: float = Field(default=2.0, ge=0.1, le=20)
-    travel_mm: float = Field(default=360.0, ge=0, le=2000)
-    motion_samples: int = Field(default=5, ge=3, le=21)
+    body_width_mm: float = Field(default=190, ge=160, le=280)
+    body_depth_mm: float = Field(default=75, ge=65, le=120)
+    body_height_mm: float = Field(default=210, ge=190, le=300)
+    shell_wall_mm: float = Field(default=3, ge=2, le=6)
+    hip_height_mm: float = Field(default=180, ge=150, le=220)
+    leg_upper_mm: float = Field(default=90, ge=60, le=140)
+    leg_lower_mm: float = Field(default=90, ge=60, le=140)
+    arm_upper_mm: float = Field(default=180, ge=50, le=230)
+    arm_lower_mm: float = Field(default=180, ge=50, le=230)
+    shoulder_span_mm: float = Field(default=220, ge=200, le=340)
+    shoulder_forward_mm: float = Field(default=65, ge=45, le=100)
+    shoulder_height_mm: float = Field(default=330, ge=290, le=420)
+    tool_offset_mm: float = Field(default=45, ge=35, le=60)
+    gripper_max_opening_mm: float = Field(default=130, ge=30, le=180)
+    bench_height_mm: float = Field(default=180, ge=150, le=210)
+    blender_internal_radius_mm: float = Field(default=38, ge=30, le=50)
+    blender_internal_height_mm: float = Field(default=145, ge=110, le=200)
+    vessel_wall_mm: float = Field(default=3, ge=2, le=5)
+    blender_base_height_mm: float = Field(default=35, ge=25, le=50)
+    scoop_count: int = Field(default=3, ge=2, le=3)
+    scoop_ml: float = Field(default=30, ge=15, le=45)
+    initial_water_ml: float = Field(default=200, ge=50, le=800)
+    target_fill_ml: float = Field(default=500, ge=150, le=1500)
+    minimum_headspace_ml: float = Field(default=80, ge=30, le=300)
+    water_available_ml: float = Field(default=600, ge=200, le=1000)
+    cap_target_torque_nm: float = Field(default=.45, ge=.05, le=2)
+    cap_stop_torque_nm: float = Field(default=.7, ge=.1, le=2)
+    cap_seat_min_nm: float = Field(default=.2, ge=.05, le=1)
+    cap_damage_limit_nm: float = Field(default=1, ge=.1, le=3)
+    cap_reopen_limit_nm: float = Field(default=.8, ge=.1, le=3)
+    jar_thread_pitch_mm: float = Field(default=3, ge=1, le=5)
+    blender_thread_pitch_mm: float = Field(default=2, ge=1, le=4)
+    cap_turns: float = Field(default=2, ge=1, le=3)
 
     @model_validator(mode="after")
-    def check_layout(self):
-        f = self.frame_mm
-        if 2 * self.tube_wall_mm >= f:
-            raise ValueError("tube_wall_mm must leave a hollow tube interior")
-        if min(self.width_mm, self.depth_mm, self.height_mm) <= 3 * f:
-            raise ValueError("frame members need a positive interior span")
-        if self.rail_spacing_mm + self.support_depth_mm >= self.depth_mm - 2 * f:
-            raise ValueError("rail supports must fit between the side frame members")
-        if self.carriage_depth_mm < self.rail_spacing_mm + self.bearing_depth_mm:
-            raise ValueError("carriage_depth_mm must cover both bearing blocks")
-        if self.carriage_width_mm < self.bearing_length_mm:
-            raise ValueError("carriage_width_mm must cover the bearing length")
-        bore = self.rail_diameter_mm + 2 * self.radial_clearance_mm
-        if bore + 4 >= min(self.bearing_height_mm, self.bearing_depth_mm):
-            raise ValueError("bearing block must leave at least 2 mm around the bore")
-        radius = self.rail_diameter_mm / 2 + 0.2
-        z = self.rail_axis_above_frame_mm
-        if z - radius < 2 or z + radius > self.support_height_mm - 2:
-            raise ValueError("rail bore must fit inside the support with 2 mm margins")
-        if self.support_depth_mm < 2 * radius + 4:
-            raise ValueError("support_depth_mm must leave material around the bore")
+    def base_layout(self):
+        if self.hip_height_mm - 20 >= self.leg_upper_mm + self.leg_lower_mm:
+            raise ValueError("Legs must reach the standing ankle with a bent knee")
+        if self.shoulder_span_mm < self.body_width_mm + 24:
+            raise ValueError("Shoulders need clearance outside the shell")
+        if self.shoulder_forward_mm < self.body_depth_mm / 2 + 15:
+            raise ValueError("Forward shoulder mounts must clear the front face")
         return self
 
 
 def load_parameters(root: Path, patch: dict | None = None) -> Parameters:
-    data = json.loads((root / "configs" / "m01.json").read_text(encoding="utf-8"))
+    data = json.loads((root / "configs/pocket_pal.json").read_text(encoding="utf-8"))
     data.update(patch or {})
     return Parameters.model_validate(data)

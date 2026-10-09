@@ -1,72 +1,55 @@
-# Validation record
+# Pocket Pal validation record
 
-These checks are executed by an AI coding agent in the pinned Docker runtime.
-They are digital analyses, not tests personally performed or reviewed by the
-owner. No physical fabrication or machine operation has been performed.
+Digital checks are executed by an AI coding agent in the pinned Docker runtime.
+They are not physical trials or tests personally performed by the owner.
 
 ## Agent-run record, 2026-10-09
 
-- The nine automated tests passed in the pinned Docker runtime.
-- [GitHub CI](https://github.com/dylanstechmann/machine-cad-agent/actions/runs/37968942851)
-  also passed the pinned runtime build, all tests, the demo, and artifact upload
-  for the initial source commit.
-- The real setup wrapper started the viewer at `http://127.0.0.1:8765`.
-  Assembly GLB/STEP, BOM, and endpoint PNG downloads returned HTTP 200.
-  Source/credential paths, path traversal, and a failed build's STEP endpoint
-  returned HTTP 404. The browser displayed the collision failures and withheld
-  the STEP download link for that revision.
-- The deterministic demo produced `pass / fail / pass`. The broken 500 mm
-  revision reported four plate/support overlaps of 1,440 mm³ each, and withheld
-  fabrication exports.
-- A separate Codex session used the registered Docker stdio MCP tools to
-  build `agent-smoke-5d5a061a543f` with 400 mm travel. It read the passing report,
-  measured the 100 × 200 × 8 mm plate, received and visually inspected the
-  native `motion_right` PNG, and retrieved the passing export list. It left
-  the baseline config unchanged. This is one successful tool-use example,
-  not a benchmark of autonomous mechanical engineering.
-- The local viewer's colored GLB and generated isometric PNG were visually
-  inspected by the coding agent. The frame, parallel top rails, supports,
-  sliding blocks, and holed plate were visible.
+- The 14 automated geometry/STEP/MCP tests passed in the pinned Docker runtime.
+- The overfill demo produced `pass / fail / pass`, with the failing revision
+  withholding fabrication exports.
+- The local browser displayed the colored character and station. Its final
+  handoff showed 500 mL fill, 158 mL rounded headspace and three scoops. The
+  human-only blend, drink and thank-you controls progressed in order and
+  Pocket Pal replied “You're welcome.” Voice was left off during inspection.
+- A separate Codex session used the registered MCP tools to build a two-scoop
+  trial, inspect its report and sequence, measure the shell, visually inspect
+  native front/scoop-transfer PNGs, and retrieve passing exports. It calculated
+  240 mL top-up and left the three-scoop baseline unchanged. This is one agent
+  tool-use example, rather than a benchmark of autonomous machine design.
 
-Machine-specific logs and artifacts remain under the ignored `builds/`
-directory. Rebuilds can change artifact timestamps. The build above corresponds
-to source hash `369485affd4d091f42500f89d982ad0f147b7860da13ed6869e3aeadee7d850a`.
+## Checked scope
 
-## Automated checks
+- Valid single-solid named components and actual bounds/volumes.
+- Shell STEP reimport and measured blender cavity volume.
+- Every listed arm target reachable with FK matching its TCP; leg link lengths
+  and nonnegative foot clearance.
+- Held-object transforms and scoop bowl centering over the cup.
+- Cap rotation/axial pitch accounting and a pure torque feedback policy.
+- Recipe headspace, supply, scoop count and open-vessel preconditions.
+- B-rep intersections for arms versus shell/faceplate/worktop at key poses,
+  and held scoop/carafe versus palm/wrist and stationary vessel walls.
+- Representative nonintersecting staggered arm/leg hinges and seated cap contact.
+- Human-only blender power and final handoff.
+- Real MCP discovery, rebuild, measurements, native images, sequence data,
+  passing exports and refusal of failed exports or invalid input.
 
-The test suite covers:
+The default recipe uses 200 mL water, three nominal 30 mL scoops and 210 mL
+water top-up. The 657.787 mL modeled cavity leaves 157.787 mL headspace at
+500 mL fill. Two scoops instead require 240 mL top-up.
 
-- 21 valid, closed, single-solid baseline components.
-- Actual plate bounds and solid volume after eight 4.5 mm through holes.
-- Measured 0.25 mm block-to-rail radial gap at all default sample positions.
-- Excess travel producing real positive-volume intersection with supports.
-- An independent travel gate rejecting a 2,000 mm span even with only three
-  samples, when sampled positions otherwise miss the end-support collision.
-- Invalid/unknown/non-finite parameter rejection.
-- Plate STEP export and reimport preserving bounds and volume.
-- Failed builds keeping PNG previews while withholding STEP/STL.
-- Rejection of build path traversal.
-- A real stdio MCP client discovering tools, building, measuring, receiving
-  six native PNG images, listing passing exports, and receiving explicit
-  errors for failed exports and invalid inputs.
+The deterministic demo requests 700 mL to demonstrate a headspace failure and
+withheld STEP/STL output, then restores the default recipe.
 
-Run `./run.sh test` or `.\run.ps1 test` to reproduce. GitHub CI performs the
-same checks, followed by the deterministic pass/fail/pass demo.
+## Physical work outstanding
 
-## Geometric interpretation
+Intermediate trajectory collision freedom and all-pairs interference are not
+qualified. No balancing controller, drivetrain, fabricated gimbal, sensors,
+gripper force control, vendor threads, measured cap damage/reopening torques,
+calibrated powder dosing or fluid dynamics are implemented. The fixture rings
+are packaging envelopes with clearance; actual clamps must be developed to
+react cap torque. Printable studies require manufacturing development.
 
-The baseline has 360 mm total carriage travel. A conservative X envelope
-limits the default layout to 448 mm, retaining the generic 2 mm end-support
-gap. The deliberately broken demo uses 500 mm travel; endpoint checks report
-plate/support overlaps in addition to the travel-envelope failure. The
-repaired revision restores 360 mm travel.
-
-The checker measures moving components against stationary obstacles and
-rails. Intentional static mating contacts and plate-to-block contacts are
-excluded. Motion positions are sampled; the analytic travel gate addresses
-the known end-support / rail-engagement envelope, not arbitrary continuous
-collision certification.
-
-There is no load analysis, tolerance-stack study, purchased-component fit
-verification, print process qualification, electrical/control validation,
-or physical safety testing in this project.
+Run `.\run.ps1 test` or `./run.sh test`, followed by the demo, to reproduce the
+digital evidence. Machine-specific artifacts and protocol logs remain in
+ignored `builds/`. A passing build does not authorize physical operation.

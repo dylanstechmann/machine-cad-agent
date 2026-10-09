@@ -1,177 +1,162 @@
 # Machine CAD Agent
 
-Mechanical CAD that an AI agent can edit, rebuild, measure, inspect visually,
-and export through code and MCP tools. This is a personal hobby and learning
-project developed with AI assistance.
+Open source mechanical CAD that an LLM can edit, rebuild, measure, inspect with a
+VLM, and export through Python and MCP. A personal hobby and learning project,
+developed with AI assistance.
 
-The first model is an **M01 gantry geometry pilot**: a hollow square-tube frame,
-two round rails, four supports, two sliding blocks, and a carriage plate.
-It is a new parametric study inspired by
-[diaper-changing-machines](https://github.com/dylanstechmann/diaper-changing-machines),
-with 21 named solid components. The original Blender concepts remain in that
-separate repository. This is an initial CAD automation foundation, not the
-complete diaper-changing mechanism.
+## Meet Pocket Pal
 
-![Generated M01 isometric view](docs/preview.png)
+The example is an original **Game Boy Color inspired robot character** with a
+purple console shell, expressive screen, speaker envelope, articulated legs,
+two arms and parallel grippers. The source produces solid CAD and a complete
+kinematic storyboard for preparing a vegan protein shake:
+
+1. Walk to a low preparation station and introduce itself.
+2. Unscrew the protein container cap and park it.
+3. Open a portable battery-powered blender and pour an initial water portion.
+4. Measure and transfer **two or three scoops** with an angled dip and bowl-centered tip.
+5. Top up water while reserving headspace.
+6. Retrieve the blender cap, follow a nominal helical thread path, and apply a
+   proposed torque feedback policy.
+7. Leave the power button to an independent human, who blends, drinks and
+   thanks Pocket Pal. Optional browser speech supplies the robot's voice.
+
+![Generated Pocket Pal CAD view](docs/preview.png)
+
+**This is a running digital concept.** No physical robot, motor controller,
+fluid simulation or calibrated purchased blender is connected. Walking is
+leg kinematics; balance and dynamics remain to be developed. The grippers and
+held objects move with explicit transforms, and arm reach is solved numerically.
+The cap profiles and torque limits are nominal inputs. They do not establish
+that a real cap will be tight, undamaged or easy to reopen.
 
 ## Run it
 
-Prerequisite: Docker with Compose v2 running. No host Python or paid CAD license
-is needed. The first run downloads the pinned CAD dependencies.
-
-Windows PowerShell, from this folder:
+Prerequisite: Docker with Compose v2 running. The pinned CadQuery runtime uses
+Open CASCADE for solid modeling. No paid CAD application or host Python is needed.
 
 ```powershell
 .\run.ps1
 ```
 
-macOS / Linux:
+On macOS/Linux, use `./run.sh`. This builds the runtime, generates a
+`pass / fail / pass` example, and starts **http://127.0.0.1:8765**.
+The fault intentionally requests 700 mL in a roughly 658 mL cup. Its report and
+previews remain available, while STEP/STL exports are withheld. This is a
+deterministic pipeline exercise, not an autonomous engineering benchmark.
 
-```bash
-./run.sh
-```
-
-This builds the runtime, generates baseline / broken / repaired revisions, and
-starts the interactive viewer at **http://127.0.0.1:8765**. The expected sequence
-is `pass / fail / pass`. The fault is deliberately excessive carriage travel;
-the broken revision keeps diagnostic previews but has no STEP/STL exports.
-This scripted demo tests the pipeline, rather than measuring an LLM's ability
-to discover a repair.
-
-The viewer is bound to the local computer. It shows an orbitable colored GLB,
-six PNG views (including both travel endpoints), measurements, failures,
-parameters, provenance, and downloads. Select a revision to inspect the fault.
+The viewer provides an orbitable scene, play/pause and a pose slider, recipe
+state, optional voice, a simulated human handoff, diagnostic revisions and
+downloads. It is local to your computer and controls no hardware.
 
 ```powershell
-.\run.ps1 test                 # Geometry and real stdio MCP tests
-.\run.ps1 build                # Rebuild the canonical baseline
-.\run.ps1 parameters           # Defaults and override schema
-.\run.ps1 stop                 # Stop the viewer
+.\run.ps1 test          # Geometry, STEP and real stdio MCP checks
+.\run.ps1 build         # Canonical robot build
+.\run.ps1 parameters    # Defaults and strict override schema
+.\run.ps1 stop          # Stop the local viewer
 ```
 
-The shell wrapper supports the same commands. Direct container commands also
-work:
+Source and config are mounted into the container. Python edits take effect on
+the next build. Rebuild the image after changing dependencies. Generated files
+belong in ignored `builds/`.
 
-```bash
-docker compose run --rm -T dev python -m machine_cad build --patch '{"travel_mm":400}' --label longer-travel
-```
+## Give the AI a large role
 
-On Windows, use MCP overrides or edit `configs/m01.json` to avoid native-shell
-JSON quoting differences. Source is mounted into the container, so Python and
-configuration edits are picked up by the next build. Rebuild the Docker image
-after changing dependencies. Generated files are in `builds/` and are ignored
-by Git.
-
-## Connect the AI tools
-
-After the first run, register this checkout with Codex:
+The CAD source is the editable design. The agent can change part geometry,
+dimensions, poses and check logic, then obtain numerical and visual feedback.
+MCP exposes the same reproducible operations used by the CLI and CI.
 
 ```powershell
 .\scripts\register-codex.ps1
 ```
 
-Start a fresh Codex session in this project to load `machine_cad_agent`.
-Codex must recognize the checkout as a trusted project to expose its MCP tools;
-confirm project trust when opening a new clone.
-The registration launches Docker on demand using absolute paths to this
-checkout. It adds one stdio MCP server to the user's Codex configuration.
-It supplies 30-second startup and 180-second tool timeouts when unset.
-Other MCP clients can use the same command:
+Start a fresh Codex session in this trusted project to load `machine_cad_agent`.
+The script registers this checkout's Docker stdio server and supplies 30-second
+startup and 180-second tool timeouts when unset. The server needs no API key;
+the client supplies the LLM/VLM. Other MCP clients can launch:
 
 ```text
 docker compose --project-directory /absolute/path/to/machine-cad-agent -f /absolute/path/to/machine-cad-agent/compose.yaml run --rm -T dev python -m machine_cad.mcp_server
 ```
 
-The CAD server needs no API key. The connected LLM/VLM is supplied by the agent
-client. Codex can edit the Python model and config with its file tools, then
-use these MCP operations:
-
-| Tool | Result |
+| Tool | Feedback |
 | --- | --- |
-| `get_parameters` | Current defaults and bounded input schema, in mm |
-| `check_model` | Actual solid measurements and geometric failures for a proposal |
-| `build_model` | Regenerate geometry, check, render, and conditionally export |
-| `inspect_model` | Detailed revision report, inputs, source hash, artifact hashes |
-| `measure_part` | A named part's volume, dimensions, and assembly placement |
-| `render_views` | Native PNG image content a VLM can inspect |
-| `export_files` | File list for a fresh passing revision; refuses failed/stale builds |
+| `get_parameters` | Defaults and permitted overrides: mm, mL, N m |
+| `check_model` | Solid, kinematic, recipe and selected collision checks |
+| `build_model` | Rebuild CAD, motion scenes, views, reports and gated exports |
+| `inspect_model` | Full report, scope, source/input provenance and file hashes |
+| `measure_part` | Actual solid bounds, volume and placement |
+| `render_views` | Native PNG images for VLM inspection |
+| `get_sequence` | Paged tool poses, held objects, fill states and cap paths |
+| `export_files` | STEP/STL/BOM paths for a fresh passing build |
 
-Example task for an agent:
+Example agent task:
 
-> Inspect the current parameters. Make a trial with 400 mm total carriage
-> travel using build_model. Read the numeric report and inspect both endpoint
-> images with render_views. Measure carriage_plate and list the exports if all
-> checks pass. Persist the config only after reviewing the revision.
+> Make a trial using two scoops. Read the recipe and motion report, inspect the
+> robot front and scoop-transfer images, and list exports if the digital checks
+> pass. Leave the canonical configuration unchanged until the trial is reviewed.
 
-Per-build overrides do **not** rewrite the baseline. Persistent changes belong
-in Python or `configs/m01.json`. Follow [AGENTS.md](AGENTS.md) for evidence and
-revision discipline.
+Overrides affect only that build. Persistent edits go in `configs/pocket_pal.json`
+or Python. A source/config change makes previous outputs stale. Follow
+[AGENTS.md](AGENTS.md) for revision discipline.
 
-## Architecture and files
+## What is implemented
 
-```mermaid
-flowchart LR
-  A[LLM / VLM agent] --> B[Python model and explicit dimensions]
-  A --> C[MCP build / measure / render tools]
-  B --> D[CadQuery solid geometry]
-  C --> D
-  D --> E[Validity, travel envelope, sampled clearances]
-  E --> F[Report and PNG / GLB previews]
-  F --> A
-  E -->|passing revision| G[STEP / STL / BOM]
-  G --> H[FreeCAD or another CAD viewer]
-```
+- 59 named physical component studies, plus separate volume illustrations.
+- Hollow shell, faceplate, screen, controls and speaker/battery packaging.
+- Two-link arms with analytic IK/FK, explicit world tool orientation, staggered
+  hinge plates and translating jaws. Wrist orientation represents a future
+  three-axis gimbal; motor selection and detailed transmission are outstanding.
+- Two-link sagittal leg poses and planted/swing feet.
+- Protein jar, measured hemispherical scoop, water carafe, portable-blender
+  envelopes, cap parking pads and fixture packaging.
+- Default recipe: 200 mL initial water, 3 × 30 mL nominal scoop volume, 210 mL
+  top-up, 500 mL fill and about 158 mL geometric headspace. Powder displacement
+  is a conservative recipe input, not a mass or dissolution measurement.
+- Nominal cap rotation coupled to axial thread pitch. A pure feedback function
+  stops at the proposed seated torque target, or faults at the hard stop,
+  excessive axial error or invalid feedback. It drives no actuator.
+- Six PNG/SVG views, a GLB per key pose, assembly and individual STEP files,
+  printable/fixture-study STL files, CSV BOM and JSON recipe/motion/report data.
+- Digital checks and a failure export gate, exercised through real MCP stdio.
 
-- `src/machine_cad/model.py`: authoritative named parts and placements.
-- `configs/m01.json`: authoritative default dimensions, all in millimeters.
-- `validation.py`: solid validity, conservative travel envelope, and geometric
-  intersection/distance checks at the reported motion samples.
-- `pipeline.py`: builds, rendered views, export gate and SHA256 provenance.
-- `mcp_server.py`: structured feedback and native images for agents.
-- `web/`: local read-only artifact viewer; bundled model-viewer works offline.
-- `tests/`: geometry, STEP reimport, parameter rejection and real MCP roundtrips.
-- `.github/workflows/cad.yml`: the same build/tests/demo on GitHub, with artifacts
-  retained for seven days.
+STEP files can be edited or inspected in open source FreeCAD or another CAD
+application. CadQuery is the primary automation layer; Blender remains useful
+for presentation. The character uses original geometry without copied games
+or brand artwork.
 
-Passing builds contain one assembly STEP, 21 individual STEP files, six STL
-part studies (the supports and sliding blocks), BOM CSV, parameter JSON, and
-report JSON. The plate is a fabricated-part study supplied as STEP. Parts are
-exported at their local origin; the assembly supplies their placements.
-STEP can be inspected in FreeCAD or other engineering CAD tools; FreeCAD is
-not required or installed by this project. Blender can remain useful for
-presentation work.
+## Source and evidence
 
-The build ID identifies effective parameters, source and key dependency
-versions. Reports include file hashes. Rebuilding the same inputs reproduces
-the geometry; export timestamps and serialization are not promised to be
-byte-identical. Editing source or the baseline config marks older builds stale.
+| File | Role |
+| --- | --- |
+| `model.py` | Named solid geometry and rigid placements |
+| `kinematics.py` | Arm IK/FK, leg solving and tool transforms |
+| `sequence.py` | Task states, recipe accounting, cap path and torque policy |
+| `validation.py` | Bounded digital checks and explicit failure details |
+| `pipeline.py` | Export gate, previews and build provenance |
+| `mcp_server.py` | Agent tools with structured results and native images |
+| `web/` | Local artifact viewer and browser handoff simulation |
+| `tests/` | Digital geometry and protocol checks |
 
-## Evidence and limits
+Passing means the **listed checks** passed. Every key pose is checked for arm
+intersection with the body/worktop; held scoop/carafe shapes are also checked
+against their palm/wrist and stationary vessel walls. Intermediate paths and
+all-pairs collision freedom are not certified. Purchased fit, clamping forces,
+strength, food-contact materials, dosing, spill handling, sensors, motor drive,
+walking balance and physical cap torque require further engineering.
 
-The baseline is 600 × 400 mm with a 360 mm frame height, a 100 × 200 × 8 mm
-carriage plate, 360 mm total travel, and a measured 0.25 mm radial block/rail
-gap. The default five motion samples include both endpoints and the center.
-An independent conservative travel envelope prevents sparse sampling from
-allowing the carriage to leave the rails or jump past end supports.
-
-A passing report establishes the listed geometric checks. It does not
-establish strength, dynamics, tolerance robustness, wear, hygiene, controls,
-or child-use suitability. Stock, rail and bearing shapes are nominal
-envelopes without vendor compatibility claims. Fasteners, mounting/clamping
-details, actuation and a changing surface are not modeled. The prototype has
-not been built or physically tested. [Validation record](docs/VALIDATION.md)
-distinguishes agent-run checks from physical work.
+[Validation record](docs/VALIDATION.md) distinguishes agent-run evidence from
+physical development. GitHub CI builds the pinned runtime, runs the tests and
+the overfill demo, and retains artifacts for seven days. Build IDs identify
+effective parameters, source and dependency versions; serialization timestamps
+are not promised to be byte-identical.
 
 ## Credits
 
-- [CadQuery](https://cadquery.readthedocs.io/en/stable/): Python parametric solid
-  modeling and STEP/STL/SVG exports, using the Open CASCADE geometry kernel.
-- [MCP Python SDK](https://py.sdk.modelcontextprotocol.io/): agent protocol,
-  structured tool results and image content.
-- [CairoSVG](https://cairosvg.org/): SVG-to-PNG rendering.
-- Google's [model-viewer](https://modelviewer.dev/): local GLB preview. Its
-  bundled license and pinned source metadata are in `web/vendor/`.
-- [Codex MCP documentation](https://developers.openai.com/codex/mcp/): client
-  registration and configuration.
-
-Project source is MIT licensed; dependencies retain their own licenses.
+[CadQuery](https://cadquery.readthedocs.io/en/stable/) and Open CASCADE,
+[MCP Python SDK](https://py.sdk.modelcontextprotocol.io/),
+[CairoSVG](https://cairosvg.org/), Google's
+[model-viewer](https://modelviewer.dev/) and
+[Codex MCP documentation](https://developers.openai.com/codex/mcp/).
+The viewer's bundled license and source metadata are in `web/vendor/`.
+Project source is MIT licensed; dependencies retain their licenses.
