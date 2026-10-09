@@ -62,6 +62,29 @@ belong in ignored `builds/`.
 
 ## Give the AI a large role
 
+### Physics and reinforcement learning
+
+The project now includes a MuJoCo/Gymnasium environment and CPU PPO training
+for a supported arm's local wrist reach under gravity and finite motor torque.
+It records held-out results against motors-off, powered hold, random-command
+and analytic-IK setpoint baselines, plus effort/contact diagnostics and replay.
+
+```powershell
+.\run.ps1 sim-train --steps 65536 --seed 7 --evaluation-episodes 24
+.\run.ps1 sim-inspect
+```
+
+Open **Physics & learning** in the local viewer. The owned NIJ blender's advertised
+78 mm diameter / 254.8 mm height forms an exterior obstacle. Orgain Vanilla Bean
+is the baseline, chocolate the alternative. Actual fill, cap interfaces and
+scoop calibration remain unmeasured; the earlier CAD storyboard uses nominal
+vessels. STEP/STL files are design studies, with manufacturing release pending.
+
+[Simulation, hardware evidence and fabrication plan](docs/SIMULATION.md) explains
+the implemented scope and the next grasp/cap/transfer/walking curricula.
+
+### CAD agent tools
+
 The CAD source is the editable design. The agent can change part geometry,
 dimensions, poses and check logic, then obtain numerical and visual feedback.
 MCP exposes the same reproducible operations used by the CLI and CI.
@@ -91,6 +114,10 @@ docker compose --project-directory /absolute/path/to/machine-cad-agent -f /absol
 | `get_motion_report` | Paged interval checks, sampling policy, spacing and failures |
 | `render_motion_failure` | Native PNG of a failing intermediate sample, when reachable |
 | `export_files` | STEP/STL/BOM paths for a fresh passing build |
+| `get_hardware_reference` | Product facts, unknown measurements and manufacturing blockers |
+| `train_reach_policy` | Bounded CPU PPO physics experiment with held-out baselines |
+| `get_simulation_report` | Results, domain assumptions, diagnostics and run freshness |
+| `render_simulation` | Native PNG of the physics scene or final evaluated policy pose |
 
 Example agent task:
 

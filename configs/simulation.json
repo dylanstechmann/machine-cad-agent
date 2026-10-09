@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task": "supported_right_arm_wrist_reach",
+  "timestep_s": 0.002,
+  "physics_steps_per_action": 10,
+  "episode_actions": 150,
+  "target_tolerance_mm": 8.0,
+  "hold_actions": 15,
+  "target_center_relative_to_blender_top_mm": [0.0, 0.0, 90.0],
+  "target_half_extent_mm": [35.0, 35.0, 25.0],
+  "joint_target_velocity_rad_s": 1.0,
+  "joint_ranges_rad": [[-3.14, 3.14], [-1.4, 2.7], [-3.05, -0.08]],
+  "position_gain_nm_per_rad": [20.0, 25.0, 18.0],
+  "velocity_gain_nm_s_per_rad": [1.2, 1.5, 1.0],
+  "motor_torque_limit_nm": [1.8, 2.5, 1.8],
+  "upper_link_mass_kg": 0.12,
+  "lower_link_mass_kg": 0.10,
+  "wrist_payload_mass_kg": 0.12,
+  "randomization": {
+    "mass_multiplier": [0.8, 1.2],
+    "torque_multiplier": [0.8, 1.0],
+    "friction_multiplier": [0.7, 1.3],
+    "joint_damping_multiplier": [0.8, 1.2],
+    "control_delay_actions": [0, 2],
+    "initial_joint_noise_rad": 0.025
+  },
+  "max_joint_speed_rad_s": 6.0,
+  "unexpected_contact_force_limit_n": 5.0,
+  "physical_measurement_status": "All masses, motor limits, gains, tolerances and randomization ranges are engineering assumptions; no purchased actuator is selected or calibrated.",
+  "scope": "Three driven shoulder/elbow joints, supported base, gravity, rigid contacts and stationary product envelopes. Wrist orientation/gripper DOFs, grasping, cap threads, powder/water flow, balancing, walking and manufacturing qualification are not implemented."
+}

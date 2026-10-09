@@ -79,6 +79,43 @@ water top-up. The 657.787 mL modeled cavity leaves 157.787 mL headspace at
 The deterministic demo requests 700 mL to demonstrate a headspace failure and
 withheld STEP/STL output, then restores the default recipe.
 
+## Supported-arm physics and learning, 2026-10-09
+
+The coding agent built the pinned MuJoCo/Gymnasium/CPU PyTorch/PPO runtime and
+ran experiment `reach-ddce9b1271d042cc`: 65,536 training steps, seed 7, and 24
+separate evaluation seeds. The local operation took about 461 seconds. It used
+the frozen source SHA256
+`cea728e9e575dbafcdce80473ccbd6691c5eed6566a482f55a0d273a200d9fb7`.
+
+Success was an 8 mm wrist-position tolerance held for 0.30 seconds, with low
+joint speed and no fatal state/speed/range/contact warning. Results:
+
+| Controller | Successes / 24 | Mean final error |
+| --- | --- | --- |
+| Motors off | 0 | 75.564 mm |
+| Powered home hold | 1 | 29.192 mm |
+| Random commands | 0 | 33.366 mm |
+| Analytic IK setpoint + same PD | 23 | 3.444 mm |
+| Learned PPO | 13 | 3.940 mm |
+
+PPO improved on hold/random commands but did not match the analytic controller's
+success rate. Eleven PPO episodes timed out; a low final error is insufficient
+without the stable hold criterion. No PPO episode terminated for fatal contact
+in this sample. This is preliminary evidence for a local reaching skill, not
+proof of full-task autonomy or robust physical control.
+
+A fresh MCP SDK session discovered all 14 tools, read the Vanilla Bean hardware
+profile, invoked a separate 1,024-step PPO experiment, read controller results
+and returned a native physics PNG which the agent viewed. Its PPO had 0/4
+successes and its IK baseline 4/4. CAD study export remained available with
+`manufacturing_release: false`. The rebuilt nominal CAD study passed its
+1,339 poses and included the new hardware readiness metadata. No additional
+automated tests were added or run locally for this revision.
+
+The renderer uses primitive collision/visual envelopes and a supported base.
+Mass, torque, friction and control-delay distributions are assumptions, not
+measured purchased components. See [simulation scope and plan](SIMULATION.md).
+
 ## Physical work outstanding
 
 Continuous trajectory collision freedom and all-pairs interference are not

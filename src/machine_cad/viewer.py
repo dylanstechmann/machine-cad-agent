@@ -28,6 +28,33 @@ def serve_viewer(root: Path, host: str, port: int):
             try:
                 if path == "/":
                     self.send_data((root / "web" / "index.html").read_bytes(), "text/html; charset=utf-8")
+                elif path == "/simulation":
+                    self.send_data((root/"web"/"simulation.html").read_bytes(),"text/html; charset=utf-8")
+                elif path == "/api/hardware":
+                    from .hardware import hardware_reference,physical_readiness
+                    self.send_json({"reference":hardware_reference(root),"physical_readiness":physical_readiness(root)})
+                elif path == "/api/simulation/latest":
+                    from .simulation import read_simulation
+                    self.send_json(read_simulation(root)[1])
+                elif path == "/api/simulation/runs":
+                    from .simulation import read_simulation
+                    paths = sorted((root/"builds"/"simulation").glob("*/report.json"),key=lambda p:p.stat().st_mtime,reverse=True)
+                    reports = [read_simulation(root,p.parent.name)[1] for p in paths[:50]]
+                    self.send_json([{k:r[k] for k in ("run_id","status","stale_source","actual_training_steps","training_seed")} for r in reports])
+                elif path.startswith("/api/simulation/"):
+                    from .simulation import read_simulation
+                    self.send_json(read_simulation(root,path.removeprefix("/api/simulation/"))[1])
+                elif path.startswith("/simulation-artifacts/"):
+                    from .simulation import read_simulation,simulation_artifact
+                    pieces = path.removeprefix("/simulation-artifacts/").split("/",1)
+                    directory,report = read_simulation(root,pieces[0])
+                    name = pieces[1] if len(pieces)==2 else ""
+                    allowed = {a["name"] for a in report["artifacts"]} | {"report.json"}
+                    file = (directory/name).resolve()
+                    if name not in allowed or not file.is_relative_to(directory) or not file.is_file():
+                        raise ValueError("Simulation artifact does not exist")
+                    if name!="report.json": file,_ = simulation_artifact(root,pieces[0],name)
+                    self.send_data(file.read_bytes(),mimetypes.guess_type(file.name)[0] or "application/octet-stream")
                 elif path == "/api/latest":
                     self.send_json(get_build(root)[1])
                 elif path == "/api/builds":

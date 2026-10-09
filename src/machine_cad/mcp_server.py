@@ -153,13 +153,55 @@ def render_motion_failure(diagnostic_index: int = 0, build_id: str | None = None
 
 @mcp.tool(annotations=READ_ONLY)
 def export_files(build_id: str | None = None) -> dict[str, Any]:
-    """List STEP/STL, BOM and report paths for a fresh passing build. Failed builds are refused."""
+    """List fresh passing design-study STEP/STL/BOM. These are not a manufacturing release."""
     _, report = fresh_build(build_id)
     if not report["fabrication_exports"]:
         raise ToolError("Geometry checks failed. Fix failures and rebuild before fabrication export.")
     return {"build_id": report["build_id"], "artifact_directory": report["artifact_directory"],
+            "physical_readiness":report["physical_readiness"],
             "files": [item for item in report["artifacts"]
                       if item["path"].endswith((".step", ".stl", "bom.csv", "parameters.json"))]}
+
+
+@mcp.tool(annotations=READ_ONLY)
+def get_hardware_reference() -> dict[str, Any]:
+    """Read owned blender/Orgain reference facts, unknown measurements and release blockers."""
+    return run_command("hardware")
+
+
+@mcp.tool(annotations=BUILD_OUTPUTS)
+def train_reach_policy(steps: int = 8192, seed: int = 7, evaluation_episodes: int = 12) -> dict[str, Any]:
+    """Run a bounded CPU PPO experiment for a supported three-joint wrist reach.
+
+    Physics advances through torque-limited motors under gravity. Completion is
+    not qualification of grasping, walking, pouring or hardware. Longer runs use
+    the sim-train CLI; this MCP call accepts 1024-32768 steps and 4-24 evaluations.
+    """
+    if not 1024<=steps<=32768 or not 4<=evaluation_episodes<=24:
+        raise ToolError("MCP training accepts 1024-32768 steps and 4-24 evaluations")
+    return run_command("sim-train","--steps",str(steps),"--seed",str(seed),"--evaluation-episodes",str(evaluation_episodes))
+
+
+@mcp.tool(annotations=READ_ONLY)
+def get_simulation_report(run_id: str | None = None, include_episodes: bool = False) -> dict[str, Any]:
+    """Read PPO/baseline held-out results, domain assumptions, diagnostics and freshness."""
+    from .simulation import read_simulation
+    try: _,report = read_simulation(project_root(),run_id)
+    except (ValueError,FileNotFoundError) as error: raise ToolError(str(error)) from error
+    if not include_episodes:
+        for result in report["comparisons"].values(): result.pop("episode_results",None)
+    return report
+
+
+@mcp.tool(annotations=READ_ONLY)
+def render_simulation(run_id: str | None = None, view: str = "scene") -> list[Image]:
+    """Return native PNG of the supported-arm scene or final PPO evaluation pose."""
+    from .simulation import simulation_artifact
+    if view not in ("scene","policy_final"): raise ToolError("view must be scene or policy_final")
+    try: file,report = simulation_artifact(project_root(),run_id,view+".png")
+    except (ValueError,FileNotFoundError) as error: raise ToolError(str(error)) from error
+    if report["stale_source"]: raise ToolError("Simulation source changed. Train a fresh experiment before using these outputs.")
+    return [Image(path=file)]
 
 
 def main():

@@ -6,7 +6,7 @@
 </style></head><body>
 <header><div><strong>Machine CAD Agent</strong><small>OPEN SOURCE · CODE TO MECHANISMS</small></div><button id="refresh">Refresh builds</button></header>
 <main><div class="intro"><div><div class="eyebrow">Example 01 / Robot shake assistant</div><h1>Meet Pocket Pal.</h1></div><div id="status" class="badge">Loading build…</div></div>
-<p class="lead">A walking, talking, Game Boy Color inspired character with articulated arms. Follow the preparation, then take over to blend and enjoy.</p>
+<p class="lead">A walking, talking, Game Boy Color inspired character with articulated arms. Follow the preparation, then take over to blend and enjoy. <a href="/simulation">Explore physics &amp; learning</a></p>
 <div id="error" class="error" hidden></div><div class="workspace">
 <section class="card"><div class="title"><span>Kinematic scene</span><select id="builds" aria-label="Build revision"></select></div>
 <model-viewer id="model" alt="Purple console character with a smiling screen, articulated limbs, and a protein shake station" camera-controls touch-action="pan-y" shadow-intensity="0.5" environment-image="neutral" camera-orbit="150deg 65deg auto"></model-viewer><img id="fallback" alt="Generated robot CAD overview">
@@ -16,7 +16,7 @@
 <div class="metrics"><div class="metric"><span>Current fill</span><strong id="fill">—</strong><small>mL, water + powder volume bound</small></div><div class="metric"><span>Space left</span><strong id="headspace">—</strong><small>mL, geometric headspace</small></div><div class="metric"><span>Powder scoops</span><strong id="scoops">—</strong><small>vegan protein powder</small></div><div class="metric"><span>Valid solids</span><strong id="solids">—</strong><small>named physical components</small></div></div>
 <div class="fill-track"><div id="fill-bar"></div></div><div class="fill-caption"><span id="capacity"></span><span>Headspace reserved</span></div>
 <div class="recipe-row"><span>First water pour</span><strong id="initial">—</strong></div><div class="recipe-row"><span>Water top-up</span><strong id="topup">—</strong></div><div class="recipe-row"><span>Cap torque target / stop</span><strong id="torque">—</strong></div>
-<div class="note">Cap torque values are a proposed feedback policy. Purchased threads, dosing, grip force and walking balance require physical development.</div>
+<div class="note">This storyboard uses nominal vessels and a 30 mL scoop. The pictured NIJ blender and Orgain tub have a separate <a href="/simulation">hardware reference and physics study</a>. Their capacity, threads and scoop calibration are unmeasured. STEP/STL downloads are design studies; manufacturing release is pending.</div>
 <section aria-label="Motion evidence"><h2>Sampled motion</h2><p id="path-summary" class="quiet">Rebuild to check intermediate motion.</p><p class="quiet">Finite samples check the route between poses. Continuous collision freedom is still unverified.</p><div id="motion-diagnostics" class="human-actions"></div></section>
 <div class="handoff"><h2>The human takes over</h2><p id="handoff-text">Pocket Pal will leave the blender power button for you.</p><div class="human-actions"><button id="blend" disabled>Press play on blender</button><button id="drink" disabled>Drink shake</button><button id="thanks" disabled>Thank Pocket Pal</button></div></div>
 <ul id="failures" class="failures"></ul><div id="downloads" class="downloads"></div>
