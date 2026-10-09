@@ -16,6 +16,12 @@ or physical work.
 - Pass covers the exact scope in the report. Never turn nominal thread,
   torque, purchased-component or walking inputs into physical claims.
 - Digital pose playback and browser speech/human actions control no hardware.
+- Keep product evidence, nominal CAD inputs and simulation assumptions distinct.
+  Null measurements are unknown. Owned-product fit and manufacturing release
+  remain pending even when generic design-study exports pass.
+- Simulation episodes must advance through motor commands and physics steps.
+  Preserve fixed input snapshots and compare learned policies on held-out seeds.
+  Inspect effort/contact/termination evidence and rendered simulation views.
 - Failed/stale builds must not expose fabrication exports through MCP/UI.
 - Generated artifacts belong in ignored `builds/`. Keep credentials outside
   source, generated files, images and shared container mounts.

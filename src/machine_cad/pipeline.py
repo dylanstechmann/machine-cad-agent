@@ -13,6 +13,7 @@ from .parameters import load_parameters
 from .rendering import render_view
 from .sequence import make_sequence
 from .validation import bounds, validate
+from .hardware import physical_readiness
 
 VIEWS = {"isometric":(1,1.4,1),"front":(0,1,0),"top":(0,0,1),"side":(1,0,0),
          "walking":(1,1.4,.8),"scoop_transfer":(1,1.4,1)}
@@ -22,7 +23,8 @@ BUILD_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,47}-[a-f0-9]{12}$")
 def source_digest(root: Path) -> str:
     digest = hashlib.sha256()
     paths = sorted((root/"src"/"machine_cad").glob("*.py"))
-    paths += [root/"configs"/"pocket_pal.json",root/"pyproject.toml",root/"uv.lock",root/"Dockerfile"]
+    paths += sorted((root/"configs").glob("*.json"))
+    paths += [root/"pyproject.toml",root/"uv.lock",root/"Dockerfile"]
     for path in paths:
         digest.update(path.relative_to(root).as_posix().encode())
         digest.update(path.read_bytes())
@@ -48,7 +50,8 @@ def inspect(root: Path,patch: dict|None=None):
         raise ValueError("Source changed during inspection. Repeat the operation with stable source files.")
     report.update({"schema_version":3,"model":"Pocket_Pal","units":{"length":"mm","volume":"mL","torque":"N m"},
                    "parameters":p.model_dump(),"source_sha256":source_before,
-                   "dependencies":{n:importlib.metadata.version(n) for n in ("cadquery","mcp","CairoSVG")}})
+                   "dependencies":{n:importlib.metadata.version(n) for n in ("cadquery","mcp","CairoSVG")},
+                   "physical_readiness":physical_readiness(root)})
     return p,parts,base,frames,report
 
 
