@@ -108,6 +108,7 @@ def sampling_policy():
         "jaw_step_mm":GRIPPER_STEP_MM,
         "minimum_subdivisions":4,"maximum_interior_samples":MAX_INTERIOR_SAMPLES,
         "tool_rotation_radius_allowance_mm":TOOL_RADIUS_BOUND_MM,
+        "detailed_digit_and_toe_collisions":"Checked at task key poses; intermediate samples check the main hand/arm/leg/foot envelopes",
         "interpolation":"Cartesian tool/foot/body interpolation; scoop world-bowl interpolation; nearest-equivalent ordinary Euler commands; unwrapped thread yaw",
         "events":"Pickup at destination; release at source; recipe and other task events only at key poses",
         "limit":"Finite samples only; IK link sweeps and continuous collision freedom are not certified"}

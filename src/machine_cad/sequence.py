@@ -42,8 +42,8 @@ def make_sequence(p):
     plan = recipe(p)
     state = {
         "body_y_mm":0,"feet":{"left":[-55,0,20],"right":[55,0,20]},
-        "arms":{"left":{"tcp_mm":[-160,85,255],"euler_deg":[0,0,0],"opening_mm":125},
-                "right":{"tcp_mm":[160,85,255],"euler_deg":[0,0,0],"opening_mm":125}},
+        "arms":{"left":{"tcp_mm":[-140,30,110],"euler_deg":[0,0,0],"opening_mm":125},
+                "right":{"tcp_mm":[140,30,110],"euler_deg":[0,0,0],"opening_mm":125}},
         "objects":{"jar_lid":{"position_mm":[-110,190,jar_cap_z],"euler_deg":[0,0,0],"held_by":None},
                    "blender_lid":{"position_mm":[110,190,blender_cap_z],"euler_deg":[0,0,0],"held_by":None},
                    "carafe":{"position_mm":[230,150,h+120],"euler_deg":[0,0,0],"held_by":None},
@@ -67,12 +67,15 @@ def make_sequence(p):
             state["objects"][held] = {"position_mm":list(tcp),"euler_deg":list(angles),"held_by":side}
 
     def rest(side):
-        arm(side,((-160 if side=="left" else 160),85,255))
+        arm(side,((-140 if side=="left" else 140),30+state["body_y_mm"],110))
 
     clear_z = max(rim,h+130)+85
 
     def approach(side,tcp,prefix,phase):
         outward = -230 if side=="left" else 230
+        home_x = -140 if side=="left" else 140
+        arm(side,(home_x,30+state["body_y_mm"],clear_z))
+        emit(prefix+"_raise_in_front","Raise the hand in the clear lane before crossing the cap stands",phase)
         arm(side,(outward,85,255))
         emit(prefix+"_outward","Move the empty hand clear of the vessels",phase)
         arm(side,(outward,85,clear_z))
@@ -94,6 +97,8 @@ def make_sequence(p):
         emit(prefix+"_retreat_high","Withdraw above the station",phase)
         arm(side,(outward,85,255))
         emit(prefix+"_lower","Lower the empty hand outside the vessels",phase)
+        arm(side,((-180 if side=="left" else 180),30+state["body_y_mm"],255))
+        emit(prefix+"_retreat_front","Move in front of the cap parking area before lowering",phase)
         rest(side)
         emit(prefix+"_rest","Return the hand to rest",phase)
 
@@ -101,8 +106,9 @@ def make_sequence(p):
                                          (-25,-80,20,0,20),(0,35,45,0,20),(0,0,20,0,20))):
         state["body_y_mm"] = body
         state["feet"] = {"left":[-55,ly,lz],"right":[55,ry,rz]}
-        for side in ("left","right"):
-            arm(side,((-160 if side=="left" else 160),85+body,255))
+        swing = (i%2)*35
+        arm("left",(-140,30+body,110+swing))
+        arm("right",(140,30+body,110+(35-swing)))
         emit(f"walk_{i}","Walk to the preparation station","walking")
     emit("hello","Hello, I'm Pocket Pal","greeting","Hello! I'll prepare your protein shake.")
 
@@ -236,8 +242,8 @@ def make_sequence(p):
              thread={"object":"blender_lid","turns":turns,"axial_lift_mm":lift})
     state["planned_torque_nm"] = p.cap_target_torque_nm
     state["blender_open"] = False
-    state["objects"]["blender_lid"]["held_by"] = None
     emit("cap_seated","Cap seated; stop at the torque target","close_blender")
+    state["objects"]["blender_lid"]["held_by"] = None
     withdraw("right","cap","close_blender")
     state["human_ready"] = True
     emit("human_ready","Ready for the human to blend and enjoy","handoff",

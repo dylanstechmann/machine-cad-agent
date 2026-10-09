@@ -42,7 +42,8 @@ def validate_paths(base,p,frames,checker):
             unreachable = [s+" arm" for s,v in arms.items() if not v["reachable"]]+[s+" leg" for s,v in legs.items() if not v["reachable"]]
             errors = [s for s,v in arms.items() if v["reachable"] and v["position_error_mm"]>1e-6]
             floor = [s for s,v in legs.items() if v["reachable"] and v["floor_clearance_mm"]<0]
-            collisions = [] if unreachable else checker.check(pose_parts(base,p,frame,include_visualization=False))
+            collisions = [] if unreachable else checker.check(
+                pose_parts(base,p,frame,include_visualization=False),include_detailed_hands_and_toes=False)
             if unreachable or collisions or errors or floor:
                 failure = {"fraction":round(t,8),"unreachable":unreachable,"collisions":collisions,
                            "fk_errors":errors,"floor_penetration":floor}
@@ -146,7 +147,8 @@ def validate(parts,p,base_parts):
         collisions = []
         if reachable:
             posed = pose_parts(base_parts,p,frame,include_visualization=False)
-            collisions = checker.check(posed)
+            held_contacts = {(obj["held_by"],"object_"+name) for name,obj in frame["objects"].items() if obj["held_by"]}
+            collisions = checker.check(posed,permitted_hand_object_contacts=held_contacts)
             check("keypose_collisions",not collisions,"Robot or object intersects a checked body/station/object part",
                   pose=frame["id"],collisions=collisions)
         check("human_power_control",not frame["robot_actuates_blender"],"The robot must leave the power button to the human",pose=frame["id"])
@@ -160,5 +162,5 @@ def validate(parts,p,base_parts):
             "motion_samples":samples,"recipe":plan,"sequence_frames":len(frames),
             "path_sampling":path_summary,"trajectory_segments":segments,"diagnostic_poses":diagnostics,
             "collision_stats":checker.stats(),
-            "scope":"Solid/recipe/IK/FK/attachment/cap checks plus exact selected B-rep intersections at key poses and sampled intermediate poses. Limbs versus body/station/objects; objects versus body/station/other objects; body versus worktop. Adjacent mounting contacts and internal robot self-collisions are excluded. Finite sampling does not certify continuous or all-pairs collision freedom, balance, grip forces, fluid flow or hardware torque.",
+            "scope":"Solid/recipe/IK/FK/attachment/cap checks plus exact selected B-rep intersections at key poses and sampled intermediate poses. Key poses check digit and toe solids; sampled paths check main hand/arm/leg/foot envelopes. Digit contact with the object explicitly held by that hand is treated as intentional geometric grasp contact. Limbs versus body/station/objects; objects versus body/station/other objects; body versus worktop. Adjacent mounting contacts and internal robot self-collisions are excluded. Finite sampling does not certify continuous or all-pairs collision freedom, balance, grip forces, fluid flow or hardware torque.",
             "hardware_status":"Digital concept; no constructed robot or calibrated vendor mechanism."}

@@ -1,7 +1,8 @@
 """Conservative box pruning followed by exact B-rep intersection volumes."""
 
 OVERLAP_LIMIT_MM3 = .001
-LIMB_PREFIXES = ("upper_","fore_","tool_","jaw_","thigh_","shin_","foot_")
+LIMB_PREFIXES = ("upper_","fore_","tool_","digit_","knuckle_","jaw_","thigh_","shin_","foot_","toe_")
+DETAILED_HAND_FOOT_PREFIXES = ("digit_","knuckle_","toe_")
 
 
 class CollisionChecker:
@@ -34,15 +35,22 @@ class CollisionChecker:
         self.pair_cache[key] = volume
         return volume
 
-    def check(self,posed):
+    def check(self,posed,include_detailed_hands_and_toes=True,permitted_hand_object_contacts=()):
         physical = [p for p in posed if p.category!="visualization"]
-        body = [p for p in physical if p.group=="body" and not p.name.startswith("shoulder_mount_") and p.name!="hip_bridge"]
+        body = [p for p in physical if p.group=="body" and not p.name.startswith(("shoulder_mount_","hip_joint_")) and p.name!="hip_bridge"]
         stationary = [p for p in physical if p.group=="stationary"]
         objects = [p for p in physical if p.group.startswith("object_")]
         limbs = [p for p in physical if p.group.startswith(LIMB_PREFIXES)]
+        if not include_detailed_hands_and_toes:
+            limbs = [p for p in limbs if not p.group.startswith(DETAILED_HAND_FOOT_PREFIXES)]
         pairs = []
         for limb in limbs:
-            pairs.extend((limb,p) for p in (*body,*stationary,*objects))
+            for obstacle in (*body,*stationary,*objects):
+                intentional_grip = (obstacle.group.startswith("object_") and
+                    any(obstacle.group==object_group and limb.group.startswith((f"digit_{side}_",f"knuckle_{side}_"))
+                        for side,object_group in permitted_hand_object_contacts))
+                if not intentional_grip:
+                    pairs.append((limb,obstacle))
         for obj in objects:
             pairs.extend((obj,p) for p in (*body,*stationary))
         # Two-hand/object interference is meaningful; parts of the same object mate intentionally.

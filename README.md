@@ -6,10 +6,11 @@ developed with AI assistance.
 
 ## Meet Pocket Pal
 
-The example is an original **Game Boy Color inspired robot character** with a
-purple console shell, expressive screen, speaker envelope, articulated legs,
-two arms and parallel grippers. The source produces solid CAD and a complete
-kinematic storyboard for preparing a vegan protein shake:
+The example is an original **Game Boy Color inspired humanoid robot**. Its
+console shell is the torso and expressive face. It has pinned shoulders and
+elbows, two-link arms, five-digit curling hands, hip and knee joints, and feet
+with five individually modeled toes. The source produces solid CAD and a
+complete kinematic storyboard for preparing a vegan protein shake:
 
 1. Walk to a low preparation station and introduce itself.
 2. Unscrew the protein container cap and park it.
@@ -24,11 +25,13 @@ kinematic storyboard for preparing a vegan protein shake:
 ![Generated Pocket Pal CAD view](docs/preview.png)
 
 **This is a running digital concept.** No physical robot, motor controller,
-fluid simulation or calibrated purchased blender is connected. Walking is
-leg kinematics; balance and dynamics remain to be developed. The grippers and
-held objects move with explicit transforms, and arm reach is solved numerically.
-The cap profiles and torque limits are nominal inputs. They do not establish
-that a real cap will be tight, undamaged or easy to reopen.
+fluid simulation or calibrated purchased blender is connected. Walking remains
+a leg-kinematic storyboard; balance and whole-body dynamics remain to be
+developed. Finger curl follows the task's grasp-aperture command as a geometric
+pose, without finger-joint torque, force or slip simulation. Held objects move
+with explicit transforms, and arm reach is solved numerically. The cap profiles
+and torque limits are nominal inputs. They do not establish that a real cap
+will be tight, undamaged or easy to reopen.
 
 ## Run it
 
@@ -136,12 +139,17 @@ or Python. A source/config change makes previous outputs stale. Follow
 
 ## What is implemented
 
-- 59 named physical component studies, plus separate volume illustrations.
+- Named, separate humanoid hand and foot components, joints, task fixtures and
+  volume illustrations; the full part list is recorded in each build BOM.
 - Hollow shell, faceplate, screen, controls and speaker/battery packaging.
-- Two-link arms with analytic IK/FK, explicit world tool orientation, staggered
-  hinge plates and translating jaws. Wrist orientation represents a future
+- Two-link arms with analytic IK/FK, explicit world tool orientation, pinned
+  shoulder/elbow housings, and five two-phalanx fingers per hand. Grasp-aperture
+  commands curl the digits for storyboard poses; finger forces and independent
+  motor control are not simulated. Wrist orientation represents a future
   three-axis gimbal; motor selection and detailed transmission are outstanding.
-- Two-link sagittal leg poses and planted/swing feet.
+- Two-link sagittal leg poses with pinned hip/knee housings, ankle bearings,
+  planted/swing feet and five visible toe segments per foot. Toe flexion,
+  balance and walking dynamics remain future simulation work.
 - Intermediate geometric sampling, with fresh IK/FK at each sample. Thread yaw
   retains its winding, a tipped scoop keeps its bowl over the cup, and grasp,
   release and recipe events remain discrete.
@@ -184,7 +192,10 @@ Passing means the **listed checks** passed. Key poses and sampled intermediate
 poses check limbs against the body/station/objects, objects against the
 body/station/other objects, and the body against the worktop. Foot clearance,
 held transforms and recipe bounds are also checked. Internal robot
-self-collisions and intentional mounting interfaces are excluded.
+self-collisions and intentional mounting interfaces are excluded. Individual
+finger and toe solids are checked at task key poses; intended finger contact
+with the currently held object is allowed. Intermediate route samples check
+the wrist/palm and main limb/foot envelopes, not every digit separately.
 Finite sampling does not certify continuous or all-pairs collision freedom.
 Purchased fit, clamping forces,
 strength, food-contact materials, dosing, spill handling, sensors, motor drive,

@@ -79,6 +79,30 @@ water top-up. The 657.787 mL modeled cavity leaves 157.787 mL headspace at
 The deterministic demo requests 700 mL to demonstrate a headspace failure and
 withheld STEP/STL output, then restores the default recipe.
 
+## Humanoid CAD geometry, 2026-10-09
+
+Build `pocket-pal-humanoid-ecb6269802bb` passed with zero reported failures.
+It contains 159 storyboard poses across 158 intervals. The path checker
+required and checked 1,371 interior samples, for 1,530 checked poses total;
+all 158 intervals passed. The largest observed TCP spacing was 20 mm and the
+largest Euler-command spacing was 7.557 degrees. These finite samples are not
+a continuous collision proof.
+
+The generated CAD now includes a palm, thumb and four two-segment fingers per
+hand, with visible knuckles; pinned shoulder and elbow joint envelopes; hip,
+knee and ankle joint envelopes; and five segmented toes per foot. Hand curl
+is derived geometrically from the storyboard grasp aperture. Finger and toe
+solids are included in key-pose collision checking, while sampled routes check
+the palm and main limb/foot envelopes. Intended digit contact with the held
+object is allowed. The report still marks manufacturing release false and
+classifies the output as digital design studies using unmeasured reference
+hardware.
+
+The CAD build does not simulate finger forces, slipping, balance, or dynamic
+whole-body walking. The walking illustration is a kinematic pose sequence;
+the only current learned physics controller is for a supported three-joint
+arm. No new automated test suite was run for this geometry update.
+
 ## Supported-arm physics and learning, 2026-10-09
 
 The coding agent built the pinned MuJoCo/Gymnasium/CPU PyTorch/PPO runtime and

@@ -51,6 +51,52 @@ def link(length):
     return result.val()
 
 
+def digit_segment(length,width,depth):
+    """Rounded phalanx centered halfway down local -Z from its knuckle."""
+    return (cq.Workplane("XY").box(width,depth,length).edges("|Z")
+            .fillet(min(width,depth)/3).translate((0,0,-length/2)).val())
+
+
+def rounded_foot(width,length,depth):
+    radius = min(8,width/3,length/3)
+    return cq.Workplane("XY").box(width,length,depth).edges("|Z").fillet(radius).translate((0,0,-depth/2)).val()
+
+
+def hand_digit_locations(p,side,opening):
+    """Kinematic five-digit hand curl driven by the sequence's aperture command."""
+    sign = -1 if side=="left" else 1
+    closure = max(0.0,min(1.0,1.0-opening/p.gripper_max_opening_mm))
+    base_z = p.tool_offset_mm-p.hand_palm_length_mm/2
+    proximal = p.finger_phalanx_length_mm
+    distal = proximal*.78
+    result = {}
+
+    def add_digit(name,base_x,base_y,base_z,first_angle,second_angle,width):
+        base = (base_x,base_y,base_z)
+        first = tool_location(base,(0,first_angle,0))
+        pip = first*tool_location((0,0,-proximal))
+        second = tool_location(base,(0,first_angle+second_angle,0))*tool_location((0,0,-proximal))
+        result[f"digit_{side}_{name}_proximal"] = first
+        result[f"digit_{side}_{name}_distal"] = second
+        result[f"knuckle_{side}_{name}_mcp"] = tool_location(base)
+        result[f"knuckle_{side}_{name}_pip"] = pip
+        return width
+
+    finger_offsets = (2,14,26,44)
+    finger_depths = (-8,-3,3,8)
+    finger_names = ("index","middle","ring","pinky")
+    for name,x,y in zip(finger_names,finger_offsets,finger_depths):
+        angle = sign*(-45+80*closure)
+        pip_angle = sign*30*closure
+        add_digit(name,sign*x,y,base_z,angle,pip_angle,10)
+
+    thumb_angle = sign*(45-90*closure)
+    thumb_pip_angle = -sign*20*closure
+    add_digit("thumb",-sign*(p.hand_palm_width_mm*.43),0,base_z+3,
+              thumb_angle,thumb_pip_angle,13)
+    return result
+
+
 def cup(radius,height,wall):
     return (cq.Workplane("XY").circle(radius+wall).extrude(height+wall)
             .cut(cq.Workplane("XY").circle(radius).extrude(height+1).translate((0,0,wall))).val())
@@ -113,22 +159,59 @@ def templates(p):
         x = sign*p.shoulder_span_mm/2
         add("shoulder_mount_"+side,box(35,p.shoulder_forward_mm+10,27),
             (x,p.shoulder_forward_mm/2,p.shoulder_height_mm),group="body",color=GOLD)
+        shoulder_ball = cq.Workplane("XY").sphere(16).val()
+        add("shoulder_mount_ball_"+side,shoulder_ball,
+            (x,p.shoulder_forward_mm,p.shoulder_height_mm),group="body",color=GOLD)
         add("upper_arm_"+side,link(p.arm_upper_mm).translate((-sign*11,0,0)),group="upper_"+side)
         add("forearm_"+side,link(p.arm_lower_mm).translate((sign*11,0,0)),group="fore_"+side,color=PURPLE)
         for joint,group in (("shoulder","upper_"),("elbow","fore_")):
             pin = cq.Workplane("YZ").circle(4.2).extrude(24,both=True).val()
             add(joint+"_pin_"+side,pin,category="purchased-envelope",description="Nominal pivot pin",group=group+side,color=GOLD)
+        elbow_ball = cq.Workplane("XY").sphere(13).val()
+        add("elbow_joint_"+side,elbow_ball,group="fore_"+side,color=GOLD)
         stem = cylinder(12,23).translate((0,0,p.tool_offset_mm-10))
         add("wrist_"+side,stem,group="tool_"+side,color=GOLD)
-        add("palm_"+side,box(p.gripper_max_opening_mm+24,22,14).translate((0,0,p.tool_offset_mm)),
-            description="Parallel jaw crossbar; wrist rotation and tilt are explicit",group="tool_"+side,color=DARK)
-        for jaw in ("negative","positive"):
-            add(f"jaw_{side}_{jaw}",box(8,18,p.tool_offset_mm+15).translate((0,0,(p.tool_offset_mm-25)/2)),
-                description="Translating gripper finger",group=f"jaw_{side}_{jaw}",color=CORAL)
+        palm = cq.Workplane("XY").box(p.hand_palm_width_mm,p.hand_palm_depth_mm,p.hand_palm_length_mm).edges("|Z").fillet(9).translate((0,0,p.tool_offset_mm)).val()
+        add("palm_"+side,palm,description="Robotic palm envelope; anthropomorphic digits are articulated in the kinematic hand study",group="tool_"+side,color=DARK)
+        wrist_ball = cq.Workplane("XY").sphere(13).translate((0,0,p.tool_offset_mm)).val()
+        add("wrist_joint_"+side,wrist_ball,group="tool_"+side,color=GOLD)
+        for digit,width in (("index",10),("middle",10),("ring",10),("pinky",10),("thumb",13)):
+            for segment,length,depth in (("proximal",p.finger_phalanx_length_mm,width),
+                                         ("distal",p.finger_phalanx_length_mm*.78,width-1)):
+                add(f"digit_{side}_{digit}_{segment}",digit_segment(length,depth,15),
+                    description="Separate articulated finger phalanx; joint travel is a CAD pose heuristic",
+                    group=f"digit_{side}_{digit}_{segment}",color=CREAM if digit!="thumb" else CORAL)
+            knuckle = cq.Workplane("XY").sphere(5.5 if digit!="thumb" else 6.5).val()
+            for joint in ("mcp","pip"):
+                add(f"knuckle_{side}_{digit}_{joint}",knuckle,
+                    description="Visible finger hinge envelope; no selected actuator or measured force",
+                    group=f"knuckle_{side}_{digit}_{joint}",color=GOLD)
         add("upper_leg_"+side,link(p.leg_upper_mm).translate((11,0,0)),group="thigh_"+side,color=PURPLE)
         add("lower_leg_"+side,link(p.leg_lower_mm).translate((-11,0,0)),group="shin_"+side)
-        foot = cq.Workplane("XY").box(65,100,20).edges("|Z").fillet(10).translate((0,10,-10)).val()
+        hip_ball = cq.Workplane("XY").sphere(17).val()
+        add("hip_joint_"+side,hip_ball,(sign*55,0,p.hip_height_mm),group="body",color=GOLD)
+        knee_ball = cq.Workplane("XY").sphere(15).val()
+        add("knee_joint_"+side,knee_ball,group="shin_"+side,color=GOLD)
+        ankle_ball = cq.Workplane("XY").sphere(12).val()
+        add("ankle_joint_"+side,ankle_ball,group="foot_"+side,color=GOLD)
+        for joint,group in (("hip","thigh_"),("knee","shin_")):
+            pin = cq.Workplane("YZ").circle(4.2).extrude(22,both=True).val()
+            add(joint+"_pin_"+side,pin,category="purchased-envelope",description="Nominal planar leg pivot pin",group=group+side,color=GOLD)
+        foot = rounded_foot(68,70,20)
         add("foot_"+side,foot,group="foot_"+side,color=GOLD)
+        toe_names = ("big","second","middle","fourth","little")
+        toe_offsets = (20,9,-2,-13,-24) if side=="left" else (-20,-9,2,13,24)
+        for index,(name,x_offset) in enumerate(zip(toe_names,toe_offsets)):
+            toe_width = (14,11,11,10,9)[index]
+            toe = rounded_foot(toe_width,p.toe_length_mm*.58,14)
+            tip = rounded_foot(toe_width*.82,p.toe_length_mm*.48,12)
+            add(f"toe_{side}_{name}_base",toe.translate((x_offset,38,-10)),
+                description="Separate modeled toe phalanx; fixed to the foot in this gait study",group="toe_"+side,color=CREAM)
+            add(f"toe_{side}_{name}_tip",tip.translate((x_offset,38+p.toe_length_mm*.46,-10)),
+                description="Distal toe segment with visible hinge separation",group="toe_"+side,color=PURPLE)
+            toe_joint = cq.Workplane("XY").sphere(4.5).translate((x_offset,38,-10)).val()
+            add(f"toe_{side}_{name}_joint",toe_joint,
+                description="Toe hinge envelope; toe flexion is not dynamically actuated",group="toe_"+side,color=GOLD)
 
     h = p.bench_height_mm
     add("worktop",box(640,360,12),(0,245,h-6),"fixture-study","Preparation station with front clearance for hips and legs",color=(.70,.77,.78,1))
@@ -157,7 +240,7 @@ def templates(p):
                                                                p.blender_internal_radius_mm+p.vessel_wall_mm+9)):
         add(name,ring(outer,inner,20),(x,190,h),"fixture-study","Counter-torque fixture envelope; mounting force unmeasured",color=CORAL)
     for name,position,radius,height in (("jar_lid_stand",(-230,105,h),50,44),
-                                       ("blender_lid_stand",(250,285,h),35,39)):
+                                       ("blender_lid_stand",(250,285,h),35,28)):
         stand = cq.Workplane("XY").circle(18).extrude(height-5).union(
             cq.Workplane("XY").circle(radius).extrude(5).translate((0,0,height-5))).val()
         add(name,stand,position,"fixture-study","Raised cap parking pad",color=(.5,.58,.64,1))
@@ -169,6 +252,7 @@ def templates(p):
 def pose_parts(parts,p,frame,include_visualization=True):
     arms = {s:solve_arm(p,s,a["tcp_mm"],a["euler_deg"],frame["body_y_mm"]) for s,a in frame["arms"].items()}
     legs = {s:solve_leg(p,s,frame["feet"][s],frame["body_y_mm"]) for s in ("left","right")}
+    digits = {s:hand_digit_locations(p,s,frame["arms"][s]["opening_mm"]) for s in ("left","right")}
     if not all(v["reachable"] for v in (*arms.values(),*legs.values())):
         raise ValueError("Pose has an unreachable limb target; no clamped pose is rendered")
     result = []
@@ -181,13 +265,12 @@ def pose_parts(parts,p,frame,include_visualization=True):
             if group=="upper_"+side: loc = link_location(a["shoulder_mm"],a["elbow_mm"],a["hinge_axis"])
             elif group=="fore_"+side: loc = link_location(a["elbow_mm"],a["wrist_mm"],a["hinge_axis"])
             elif group=="tool_"+side: loc = tool_location(frame["arms"][side]["tcp_mm"],frame["arms"][side]["euler_deg"])
-            elif group.startswith("jaw_"+side+"_"):
-                sign = -1 if group.endswith("negative") else 1
-                opening = frame["arms"][side]["opening_mm"]
-                loc = tool_location(frame["arms"][side]["tcp_mm"],frame["arms"][side]["euler_deg"])*tool_location((sign*(opening/2+4),0,0))
+            elif group in digits[side]:
+                loc = tool_location(frame["arms"][side]["tcp_mm"],frame["arms"][side]["euler_deg"])*digits[side][group]
             elif group=="thigh_"+side: loc = link_location(l["hip_mm"],l["knee_mm"],(1,0,0))
             elif group=="shin_"+side: loc = link_location(l["knee_mm"],l["ankle_mm"],(1,0,0))
             elif group=="foot_"+side: loc = tool_location(l["ankle_mm"])
+            elif group=="toe_"+side: loc = tool_location(l["ankle_mm"])
         if group.startswith("object_"):
             obj = frame["objects"][group.removeprefix("object_")]
             loc = tool_location(obj["position_mm"],obj["euler_deg"])

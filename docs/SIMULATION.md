@@ -32,6 +32,19 @@ Observations use simulator joint state and an exact target position. Camera
 perception, encoder noise, target estimation and sensor calibration are future
 work; the trained policy currently depends on that simulated state interface.
 
+The separate CAD storyboard now uses a humanoid structure: pinned shoulder,
+elbow, hip, knee and ankle envelopes; two-link arms and legs; five segmented
+digits on each hand; and five separated toe segments on each foot. The digit
+pose follows the storyboard's grasp aperture as a geometric curl. MuJoCo still
+simulates only a supported three-joint right arm. Hand contact forces, finger
+actuators, balance and whole-body walking are not implemented. These body-part
+dimensions are nominal design assumptions, not measured hardware.
+At task key poses, collision checks include each finger and toe solid. To keep
+the route build within the agent's tool budget, intermediate path checks use
+the palm and main arm/leg/foot envelopes rather than each individual digit.
+Finger contact with the object explicitly held by that hand is treated as
+intentional geometric grip contact, without a simulated force or slip check.
+
 Evaluation seeds are disjoint from the training seed. Each controller gets
 the same target, mass, inertia, damping, torque and latency randomization for
 each evaluation seed:
@@ -105,8 +118,9 @@ null measurements separate from simulation assumptions and nominal CAD inputs.
 | Stage | Current status | Evidence needed before advancing |
 | --- | --- | --- |
 | Supported local wrist reach | Implemented physics and PPO experiment | Broader targets, more training seeds, observed motor limits and inertia |
-| Wrist orientation and gripper | Planned | Relative wrist joint mapping, travel limits, transmission and torque/mass |
-| Grip and lift a rigid surrogate | Planned | Contact forces, slip/drop rates, payload and pad friction sweeps |
+| CAD hand and wrist geometry | Kinematic geometry implemented | Relative wrist joint mapping, finger actuator travel, transmission and torque/mass |
+| Hand grasp physics | Planned | Contact forces, finger actuators, slip/drop rates and pad friction sweeps |
+| Grip and lift a rigid surrogate | Planned | Validate against multiple surrogate sizes and randomized object mass |
 | Open/reseat cap | Planned | Measured cap and fixture geometry; twist/axial coupling and reaction torque |
 | Scoop and water transfer | Kinematic storyboard only | Calibrated scoop/dispense model and explicit spill/dose criteria |
 | Standing and walking | Kinematic storyboard only | Lateral hip/ankle mechanics, support contacts, balance and whole-body control |
