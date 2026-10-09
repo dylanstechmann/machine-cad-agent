@@ -1,0 +1,23 @@
+{
+  "width_mm": 600.0,
+  "depth_mm": 400.0,
+  "height_mm": 360.0,
+  "frame_mm": 20.0,
+  "tube_wall_mm": 2.0,
+  "rail_diameter_mm": 12.0,
+  "rail_spacing_mm": 160.0,
+  "rail_axis_above_frame_mm": 24.0,
+  "support_width_mm": 28.0,
+  "support_depth_mm": 30.0,
+  "support_height_mm": 36.0,
+  "carriage_width_mm": 100.0,
+  "carriage_depth_mm": 200.0,
+  "plate_thickness_mm": 8.0,
+  "bearing_length_mm": 40.0,
+  "bearing_depth_mm": 30.0,
+  "bearing_height_mm": 20.0,
+  "radial_clearance_mm": 0.25,
+  "minimum_clearance_mm": 2.0,
+  "travel_mm": 360.0,
+  "motion_samples": 5
+}

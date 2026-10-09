@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Machine CAD Agent · M01</title>
+  <script type="module" src="/vendor/model-viewer.min.js"></script>
+  <style>
+    :root{font-family:Inter,Segoe UI,system-ui,sans-serif;color:#203247;background:#f1f4f7;font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0}header{background:#14283d;color:#fff;padding:22px 5%;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    header strong{font-size:20px;letter-spacing:-.4px}header small{display:block;color:#a9c4d9;font-size:12px;margin-top:6px}button,select{font:inherit;border:1px solid #d2dce6;border-radius:8px;padding:10px 14px;background:white;color:#203247}button{cursor:pointer}header button{background:#243f57;border-color:#36566e;color:white}
+    main{max-width:1440px;margin:30px auto;padding:0 4%}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:700;color:#59768c}h1{font-size:34px;letter-spacing:-1px;margin:9px 0 8px}p{line-height:1.55;color:#607386}p.lead{margin:0 0 24px;font-size:15px}.heading{display:flex;justify-content:space-between;align-items:center;gap:24px}.badge{border-radius:30px;padding:9px 16px;background:#dff0e8;color:#206a51;font-size:13px;font-weight:650}.badge.fail{background:#fbe3df;color:#a63423}.badge.stale{background:#fff0cc;color:#85601b}
+    .workspace{display:grid;grid-template-columns:minmax(0,2fr) minmax(290px,1fr);gap:20px}.card{background:white;border:1px solid #dde5ed;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px #14283d05}.card-title{padding:17px 20px;border-bottom:1px solid #e5ebf0;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:650}.quiet{color:#7f93a4;font-size:12px;font-weight:400}model-viewer{width:100%;height:520px;background:radial-gradient(ellipse at center,#fff 0,#edf2f7 100%);--progress-bar-color:#168d85}.model-footer{padding:14px 20px;display:flex;gap:24px;justify-content:space-between;border-top:1px solid #e5ebf0;font-size:12px;color:#6d8395}.panel{padding:22px}h2{font-size:16px;margin:0 0 16px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}.metric span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#8193a3}.metric strong{display:block;font-size:24px;margin-top:5px;font-weight:550}.metric small{font-size:12px;color:#657c8d}
+    .check{border-top:1px solid #e5ebf0;padding:14px 0;font-size:13px;display:flex;gap:10px;align-items:center}.dot{width:7px;height:7px;background:#19886b;border-radius:50%;flex-shrink:0}.dot.bad{background:#bb4937}.downloads{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.downloads a{padding:10px 12px;background:#edf3f8;color:#31516c;border:1px solid #d7e3ed;border-radius:7px;text-decoration:none;font-size:12px}.downloads a.primary{background:#177a75;border-color:#177a75;color:white}.views{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.views img{width:100%;display:block;aspect-ratio:1200/850;object-fit:contain;background:white}.views .card-title{text-transform:capitalize}.below{margin-top:24px}.parameters{display:grid;grid-template-columns:repeat(3,1fr);gap:0 24px}.param{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e5ebf0;font-size:12px;gap:16px}.param span{color:#6f8293}.param strong{font-family:Consolas,monospace;font-weight:500}.provenance{padding:16px 20px;font-size:11px;color:#6f8293;word-break:break-all}details{margin-top:22px}summary{cursor:pointer;font-size:13px;color:#607386}footer{margin:24px 0 36px;font-size:12px;color:#758797;line-height:1.6}.error{padding:30px;color:#9e3429}ul{padding-left:18px;line-height:1.6;font-size:12px;color:#a63423}#fallback{display:none;width:100%}
+    @media(max-width:850px){.workspace{grid-template-columns:1fr}.parameters{grid-template-columns:1fr 1fr}.heading{align-items:flex-start;flex-direction:column;gap:6px}.views{grid-template-columns:1fr}model-viewer{height:420px}header{padding:18px 4%}}
+  </style>
+</head>
+<body>
+  <header><div><strong>Machine CAD Agent</strong><small>PARAMETRIC DESIGN WORKSPACE</small></div><button id="refresh">Refresh build</button></header>
+  <main>
+    <div class="heading"><div><div class="eyebrow">M01 / Mechanical geometry pilot</div><h1>Gantry frame &amp; carriage</h1></div><div id="status" class="badge">Loading build…</div></div>
+    <p class="lead">Generated from Python. Inspect the assembly, measured clearances, and exported parts.</p>
+    <div id="error" class="error" hidden></div>
+    <div class="workspace">
+      <section class="card"><div class="card-title"><span>Assembly preview</span><select id="builds" aria-label="Build revision"></select></div>
+        <model-viewer id="model" alt="M01 gantry with a square tube frame, two rails and a carriage plate" camera-controls touch-action="pan-y" shadow-intensity="0.5" environment-image="neutral" camera-orbit="40deg 65deg auto"></model-viewer><img id="fallback" alt="Isometric CAD view">
+        <div class="model-footer"><span>Drag to orbit · Scroll to zoom</span><span id="envelope"></span></div>
+      </section>
+      <aside class="card"><div class="card-title">Geometry report <span class="quiet">Millimeters</span></div><div class="panel">
+        <div class="metrics"><div class="metric"><span>Valid solids</span><strong id="solids">—</strong></div><div class="metric"><span>Carriage travel</span><strong id="travel">—</strong><small>mm, total span</small></div><div class="metric"><span>Rail / block gap</span><strong id="gap">—</strong><small>mm, measured radial gap</small></div><div class="metric"><span>Motion states</span><strong id="samples">—</strong><small>sampled positions</small></div></div>
+        <div class="check"><span id="solid-dot" class="dot"></span><span>Closed, valid component solids</span></div><div class="check"><span id="motion-dot" class="dot"></span><span id="motion-text">Sampled motion clearances</span></div><div class="check"><span id="export-dot" class="dot"></span><span id="export-text">Fabrication export gate</span></div>
+        <ul id="failures"></ul><div id="downloads" class="downloads"></div>
+        <p class="quiet" style="line-height:1.6;margin:22px 0 0">This report covers the stated geometric checks. Stock and bearing shapes are nominal envelopes. Physical performance has not been measured.</p>
+      </div></aside>
+    </div>
+    <div class="views" id="views"></div>
+    <section class="card below"><div class="card-title">Build parameters <span class="quiet">Recorded with this revision</span></div><div class="panel parameters" id="parameters"></div><div class="provenance" id="provenance"></div></section>
+    <footer>Personal hobby and learning project, developed with AI assistance. M01 is a gantry layout study inspired by the diaper-changing-machines concepts. This model is not a complete machine or a validated device.</footer>
+  </main>
+  <script>
+    const $ = id => document.getElementById(id);
+    let currentId = null, followLatest = true;
+    async function get(url){const response=await fetch(url);if(!response.ok)throw new Error((await response.json()).error);return response.json()}
+    function artifact(report,name){return '/artifacts/'+encodeURIComponent(report.build_id)+'/'+name}
+    function link(parent,text,url,primary=false){const a=document.createElement('a');a.textContent=text;a.href=url;a.className=primary?'primary':'';parent.append(a)}
+    function show(report){
+      currentId=report.build_id;const passed=report.status==='pass',fresh=!report.stale_source;
+      $('status').textContent=!fresh?'Source changed · rebuild needed':passed?'Geometry checks passed':'Geometry checks failed';$('status').className='badge '+(!fresh?'stale':passed?'':'fail');
+      $('model').src=artifact(report,'assembly.glb');$('fallback').src=artifact(report,'views/isometric.png');
+      $('solids').textContent=report.parts.filter(p=>p.valid&&p.solid_count===1).length+' / '+report.parts.length;
+      $('solid-dot').className='dot '+(report.parts.every(p=>p.valid&&p.solid_count===1)?'':'bad');
+      $('travel').textContent=report.parameters.travel_mm;$('samples').textContent=report.motion_samples.length;
+      const radial=report.motion_samples[0].rail_clearances.find(g=>g.parts[0]==='bearing_front'&&g.parts[1]==='rail_front');$('gap').textContent=radial.clearance_mm;
+      $('envelope').textContent=report.assembly_bounds.size_mm.map(n=>n.toFixed(0)).join(' × ')+' mm';
+      $('motion-dot').className='dot '+(passed?'':'bad');$('export-dot').className='dot '+(passed&&fresh?'':'bad');
+      $('motion-text').textContent=passed?'Sampled motion clearances passed':'Motion collision or clearance failure';
+      $('export-text').textContent=passed&&fresh?'Fabrication exports available':fresh?'Fabrication exports withheld':'Rebuild before using exports';
+      $('failures').replaceChildren();report.failures.slice(0,12).forEach(f=>{const li=document.createElement('li');li.textContent=f.message?f.message+' Requested '+f.travel_mm+' mm; maximum '+f.maximum_mm+' mm.':f.check==='solid_validity'?'Invalid solid: '+f.part:(f.parts||[f.part]).join(' / ')+' at '+f.position_mm+' mm: overlap '+f.overlap_mm3+' mm³, gap '+f.clearance_mm+' mm';$('failures').append(li)});
+      $('downloads').replaceChildren();if(passed&&fresh)link($('downloads'),'Assembly STEP',artifact(report,'assembly.step'),true);link($('downloads'),'BOM',artifact(report,'bom.csv'));link($('downloads'),'Full report',artifact(report,'report.json'));
+      $('views').replaceChildren();for(const name of ['isometric','front','top','side','motion_left','motion_right']){const card=document.createElement('section');card.className='card';const label=document.createElement('div');label.className='card-title';label.textContent=name.replaceAll('_',' ')+' view';const img=document.createElement('img');img.src=artifact(report,'views/'+name+'.png');img.alt=name.replaceAll('_',' ')+' engineering view';card.append(label,img);$('views').append(card)}
+      $('parameters').replaceChildren();Object.entries(report.parameters).forEach(([name,value])=>{const row=document.createElement('div');row.className='param';const label=document.createElement('span');label.textContent=name.replaceAll('_',' ');const val=document.createElement('strong');val.textContent=value;row.append(label,val);$('parameters').append(row)});
+      $('provenance').textContent='Revision: '+report.build_id+' · Source SHA256: '+report.source_sha256;
+      $('builds').value=report.build_id;$('error').hidden=true;
+    }
+    async function refresh(){try{const [report,builds]=await Promise.all([get('/api/latest'),get('/api/builds')]);$('builds').replaceChildren();builds.forEach(b=>{const option=document.createElement('option');option.value=b.build_id;option.textContent=b.build_id.split('-').slice(0,-1).join('-')+' · '+b.status;$('builds').append(option)});show(followLatest?report:await get('/api/build/'+currentId))}catch(error){$('error').textContent=error.message;$('error').hidden=false;$('status').textContent='Build unavailable'}}
+    $('refresh').onclick=()=>{followLatest=true;refresh()};$('builds').onchange=async()=>{followLatest=false;show(await get('/api/build/'+$('builds').value))};
+    $('model').addEventListener('error',()=>{$('model').style.display='none';$('fallback').style.display='block'});
+    refresh();setInterval(()=>{if(followLatest)refresh()},15000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+builds/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.env
+.env.*
+.codex/config.local.toml
+*.log

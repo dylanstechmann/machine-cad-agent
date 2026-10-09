@@ -1,0 +1,21 @@
+name: machine-cad-agent
+services:
+  dev:
+    image: machine-cad-agent:dev
+    build: .
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    environment:
+      MACHINE_CAD_ROOT: /workspace
+  viewer:
+    image: machine-cad-agent:dev
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    environment:
+      MACHINE_CAD_ROOT: /workspace
+    command: [python, -m, machine_cad, serve, --host, 0.0.0.0, --port, '8765']
+    ports:
+      - 127.0.0.1:8765:8765
+    restart: unless-stopped

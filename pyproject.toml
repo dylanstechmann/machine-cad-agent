@@ -1,0 +1,21 @@
+[project]
+name = "machine-cad-agent"
+version = "0.1.0"
+description = "Rebuildable mechanical CAD with geometry feedback and MCP tools for AI agents"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "cadquery==2.8.0",
+  "mcp==2.3.0",
+  "CairoSVG==2.9.1",
+]
+
+[project.scripts]
+machine-cad = "machine_cad.cli:main"
+machine-cad-mcp = "machine_cad.mcp_server:main"
+
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/machine_cad"]

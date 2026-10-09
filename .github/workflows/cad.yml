@@ -1,0 +1,31 @@
+name: CAD build and agent tools
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cad-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Build pinned CAD runtime
+        run: docker compose build dev
+      - name: Geometry, STEP roundtrip and real MCP protocol tests
+        run: docker compose run --rm -T dev python -m unittest discover -s tests -v
+      - name: Build pass, collision failure and repaired revisions
+        run: docker compose run --rm -T dev python -m machine_cad demo
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: cad-reports-and-exports
+          path: builds/
+          if-no-files-found: warn
+          retention-days: 7
