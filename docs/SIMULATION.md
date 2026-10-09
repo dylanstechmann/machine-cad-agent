@@ -115,6 +115,11 @@ null measurements separate from simulation assumptions and nominal CAD inputs.
 
 ## Next curriculum and engineering dependencies
 
+The [humanoid reference study](HUMANOID_DESIGN_REFERENCES.md) identifies donor
+CAD, real joint layouts, tendon-hand simulations and a staged hardware budget.
+Those mechanisms and learning tasks are proposals; they are not yet part of
+the running implementation described above.
+
 | Stage | Current status | Evidence needed before advancing |
 | --- | --- | --- |
 | Supported local wrist reach | Implemented physics and PPO experiment | Broader targets, more training seeds, observed motor limits and inertia |

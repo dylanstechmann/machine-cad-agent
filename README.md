@@ -33,6 +33,10 @@ with explicit transforms, and arm reach is solved numerically. The cap profiles
 and torque limits are nominal inputs. They do not establish that a real cap
 will be tight, undamaged or easy to reopen.
 
+[Humanoid engineering references and the initial hardware plan](docs/HUMANOID_DESIGN_REFERENCES.md)
+compares published skeletons, arms, dexterous hands, soft pads and simulation
+assets, with direct CAD/BOM links, reuse terms and an under-$1,000 first stage.
+
 ## Run it
 
 Prerequisite: Docker with Compose v2 running. The pinned CadQuery runtime uses
