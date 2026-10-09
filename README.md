@@ -75,6 +75,7 @@ Codex must recognize the checkout as a trusted project to expose its MCP tools;
 confirm project trust when opening a new clone.
 The registration launches Docker on demand using absolute paths to this
 checkout. It adds one stdio MCP server to the user's Codex configuration.
+It supplies 30-second startup and 180-second tool timeouts when unset.
 Other MCP clients can use the same command:
 
 ```text
