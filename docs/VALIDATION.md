@@ -4,6 +4,34 @@ These checks are executed by an AI coding agent in the pinned Docker runtime.
 They are digital analyses, not tests personally performed or reviewed by the
 owner. No physical fabrication or machine operation has been performed.
 
+## Agent-run record, 2026-10-09
+
+- The nine automated tests passed in the pinned Docker runtime.
+- [GitHub CI](https://github.com/dylanstechmann/machine-cad-agent/actions/runs/37968942851)
+  also passed the pinned runtime build, all tests, the demo, and artifact upload
+  for the initial source commit.
+- The real setup wrapper started the viewer at `http://127.0.0.1:8765`.
+  Assembly GLB/STEP, BOM, and endpoint PNG downloads returned HTTP 200.
+  Source/credential paths, path traversal, and a failed build's STEP endpoint
+  returned HTTP 404. The browser displayed the collision failures and withheld
+  the STEP download link for that revision.
+- The deterministic demo produced `pass / fail / pass`. The broken 500 mm
+  revision reported four plate/support overlaps of 1,440 mm³ each, and withheld
+  fabrication exports.
+- A separate Codex session used the registered Docker stdio MCP tools to
+  build `agent-smoke-5d5a061a543f` with 400 mm travel. It read the passing report,
+  measured the 100 × 200 × 8 mm plate, received and visually inspected the
+  native `motion_right` PNG, and retrieved the passing export list. It left
+  the baseline config unchanged. This is one successful tool-use example,
+  not a benchmark of autonomous mechanical engineering.
+- The local viewer's colored GLB and generated isometric PNG were visually
+  inspected by the coding agent. The frame, parallel top rails, supports,
+  sliding blocks, and holed plate were visible.
+
+Machine-specific logs and artifacts remain under the ignored `builds/`
+directory. Rebuilds can change artifact timestamps. The build above corresponds
+to source hash `369485affd4d091f42500f89d982ad0f147b7860da13ed6869e3aeadee7d850a`.
+
 ## Automated checks
 
 The test suite covers:

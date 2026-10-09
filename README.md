@@ -71,6 +71,8 @@ After the first run, register this checkout with Codex:
 ```
 
 Start a fresh Codex session in this project to load `machine_cad_agent`.
+Codex must recognize the checkout as a trusted project to expose its MCP tools;
+confirm project trust when opening a new clone.
 The registration launches Docker on demand using absolute paths to this
 checkout. It adds one stdio MCP server to the user's Codex configuration.
 Other MCP clients can use the same command:
