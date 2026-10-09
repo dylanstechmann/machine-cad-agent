@@ -1,0 +1,6 @@
+# CI builds the canonical Dockerfile through the verified official image mirror.
+# prepare-ci-runtime.py changes only the registry prefix and preserves its digest.
+services:
+  dev:
+    build:
+      dockerfile: builds/ci.Dockerfile

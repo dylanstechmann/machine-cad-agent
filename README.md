@@ -196,6 +196,11 @@ the overfill demo, and retains artifacts for seven days. Build IDs identify
 effective parameters, source and dependency versions; serialization timestamps
 are not promised to be byte-identical.
 
+CI derives its runtime Dockerfile through the
+[Docker Official Images mirror on ECR Public](https://aws.amazon.com/blogs/containers/docker-official-images-now-available-on-amazon-elastic-container-registry-public/),
+preserving the canonical pinned base digest. This avoids shared runner Docker
+Hub pull limits; local Compose uses the canonical Dockerfile.
+
 The sampling policy uses at least four subdivisions per interval, with more
 for translation, rotation and jaw travel. Its 20 mm translation allowance,
 15 degree angle target and 5 mm jaw target guide subdivision; the report also
