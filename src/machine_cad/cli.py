@@ -19,7 +19,7 @@ def project_root() -> Path:
 
 def compact(report: dict) -> dict:
     return {key: report[key] for key in ("build_id", "status", "artifact_directory", "fabrication_exports",
-                                        "failures", "recipe", "sequence_frames", "source_sha256")}
+                                        "failures", "recipe", "sequence_frames", "path_sampling", "diagnostic_views", "source_sha256")}
 
 
 def main() -> int:

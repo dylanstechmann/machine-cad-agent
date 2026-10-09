@@ -1,10 +1,72 @@
 """Bounded digital checks. Passing is not a physical machine qualification."""
 
 import math
-import cadquery as cq
 from .kinematics import norm, sub, solve_arm, solve_leg, rotate
 from .model import pose_parts
 from .sequence import make_sequence, recipe
+from .collisions import CollisionChecker
+from .trajectory import interpolate,subdivisions,attachment_errors,sampling_policy,MAX_INTERIOR_SAMPLES,angle_delta
+
+
+def limb_state(p,frame):
+    arms = {s:solve_arm(p,s,a["tcp_mm"],a["euler_deg"],frame["body_y_mm"]) for s,a in frame["arms"].items()}
+    legs = {s:solve_leg(p,s,frame["feet"][s],frame["body_y_mm"]) for s in ("left","right")}
+    return arms,legs
+
+
+def validate_paths(base,p,frames,checker):
+    segments,failures,diagnostics = [],[],[]
+    required = sum(subdivisions(a,b)-1 for a,b in zip(frames,frames[1:]))
+    sampled = 0
+    for a,b in zip(frames,frames[1:]):
+        count = subdivisions(a,b)
+        segment = {"from":a["id"],"to":b["id"],"subdivisions":count,"interior_samples_required":count-1,"interior_samples_checked":0,
+                   "max_tcp_gap_mm":0.0,"max_euler_gap_deg":0.0,"failures":[]}
+        ownership = attachment_errors(a,b)
+        if ownership: segment["failures"].append({"fraction":None,"attachment_errors":ownership})
+        previous = a
+        for i in range(1,count+1):
+            if ownership: break  # Invalid ownership has no defined geometric interpolation.
+            if i<count and sampled>=MAX_INTERIOR_SAMPLES: break
+            t = i/count
+            frame = interpolate(a,b,t)
+            for side in ("left","right"):
+                aa,bb = previous["arms"][side],frame["arms"][side]
+                segment["max_tcp_gap_mm"] = max(segment["max_tcp_gap_mm"],norm(sub(aa["tcp_mm"],bb["tcp_mm"])))
+                segment["max_euler_gap_deg"] = max(segment["max_euler_gap_deg"],*(abs(v) for v in angle_delta(aa["euler_deg"],bb["euler_deg"])))
+            previous = frame
+            if i==count: continue  # Endpoints are checked in the key-pose report.
+            sampled += 1
+            segment["interior_samples_checked"] += 1
+            arms,legs = limb_state(p,frame)
+            unreachable = [s+" arm" for s,v in arms.items() if not v["reachable"]]+[s+" leg" for s,v in legs.items() if not v["reachable"]]
+            errors = [s for s,v in arms.items() if v["reachable"] and v["position_error_mm"]>1e-6]
+            floor = [s for s,v in legs.items() if v["reachable"] and v["floor_clearance_mm"]<0]
+            collisions = [] if unreachable else checker.check(pose_parts(base,p,frame,include_visualization=False))
+            if unreachable or collisions or errors or floor:
+                failure = {"fraction":round(t,8),"unreachable":unreachable,"collisions":collisions,
+                           "fk_errors":errors,"floor_penetration":floor}
+                segment["failures"].append(failure)
+                if len(diagnostics)<4:
+                    diagnostics.append({"frame":frame,"failure":failure})
+        for name in ("max_tcp_gap_mm","max_euler_gap_deg"): segment[name] = round(segment[name],4)
+        segment["complete"] = segment["interior_samples_checked"]==count-1
+        segment["status"] = "incomplete" if not segment["complete"] else "fail" if segment["failures"] else "pass"
+        segments.append(segment)
+        if segment["failures"]:
+            failures.append({"check":"sampled_path","message":"Intermediate motion or attachment check failed",
+                "from":a["id"],"to":b["id"],"failed_samples":len(segment["failures"]),"first_failure":segment["failures"][0]})
+    complete = sampled==required
+    if not complete:
+        failures.append({"check":"sampling_incomplete","message":"Sampling is incomplete or its budget was exhausted; exports are withheld",
+                         "required_interior_samples":required,"checked_interior_samples":sampled})
+    summary = {"status":"incomplete" if not complete else "fail" if failures else "pass",
+        "segment_count":len(segments),"key_pose_count":len(frames),"required_interior_samples":required,
+        "checked_interior_samples":sampled,"total_checked_poses":sampled+len(frames),
+        "failed_segments":sum(bool(s["failures"]) for s in segments),"policy":sampling_policy(),
+        "max_observed_tcp_gap_mm":max((s["max_tcp_gap_mm"] for s in segments),default=0),
+        "max_observed_euler_gap_deg":max((s["max_euler_gap_deg"] for s in segments),default=0)}
+    return summary,segments,failures,diagnostics
 
 
 def bounds(shape):
@@ -16,6 +78,7 @@ def bounds(shape):
 
 def validate(parts,p,base_parts):
     failures,checks = [],[]
+    checker = CollisionChecker()
     def check(name,okay,message,**detail):
         checks.append({"check":name,"passed":bool(okay),**detail})
         if not okay: failures.append({"check":name,"message":message,**detail})
@@ -42,8 +105,7 @@ def validate(parts,p,base_parts):
     frames = make_sequence(p)
     samples = []
     for frame in frames:
-        arms = {s:solve_arm(p,s,a["tcp_mm"],a["euler_deg"],frame["body_y_mm"]) for s,a in frame["arms"].items()}
-        legs = {s:solve_leg(p,s,frame["feet"][s],frame["body_y_mm"]) for s in ("left","right")}
+        arms,legs = limb_state(p,frame)
         reachable = all(v["reachable"] for v in (*arms.values(),*legs.values()))
         check("limb_reach",reachable,"A limb target is unreachable",pose=frame["id"])
         for side,a in frame["arms"].items():
@@ -52,6 +114,9 @@ def validate(parts,p,base_parts):
             if arms[side]["reachable"]:
                 check("arm_forward_kinematics",arms[side]["position_error_mm"]<1e-6,
                       "Forward kinematics does not reproduce the requested tool point",pose=frame["id"],side=side)
+        for side,l in legs.items():
+            if l["reachable"]:
+                check("foot_floor",l["floor_clearance_mm"]>=0,"A foot penetrates the floor",pose=frame["id"],side=side)
         for name,obj in frame["objects"].items():
             if obj["held_by"]:
                 a = frame["arms"][obj["held_by"]]
@@ -80,38 +145,20 @@ def validate(parts,p,base_parts):
                   "Cap axial travel does not follow the nominal thread pitch",pose=frame["id"])
         collisions = []
         if reachable:
-            posed = pose_parts(base_parts,p,frame)
-            moving = [v for v in posed if v.group.startswith(("upper_","fore_","tool_","jaw_"))]
-            obstacle = cq.Compound.makeCompound([v.world() for v in posed if v.name in ("shell_back","faceplate","worktop")])
-            # Actual B-rep intersections at every listed pose; joint contacts and held-object contacts are excluded.
-            compound = cq.Compound.makeCompound([v.world() for v in moving])
-            volume = compound.intersect(obstacle).Volume()
-            if volume>1e-3:
-                for v in moving:
-                    overlap = v.world().intersect(obstacle).Volume()
-                    if overlap>1e-3: collisions.append({"part":v.name,"overlap_mm3":round(overlap,3)})
-            check("keypose_arm_body_bench",not collisions,"Arm or gripper intersects the body or worktop",
+            posed = pose_parts(base_parts,p,frame,include_visualization=False)
+            collisions = checker.check(posed)
+            check("keypose_collisions",not collisions,"Robot or object intersects a checked body/station/object part",
                   pose=frame["id"],collisions=collisions)
-            by_name = {v.name:v for v in posed}
-            targeted = []
-            for obj_name in ("carafe","scoop"):
-                obj = frame["objects"][obj_name]
-                if not obj["held_by"]: continue
-                side = obj["held_by"]
-                for tool_name in ("palm_"+side,"wrist_"+side):
-                    overlap = by_name[tool_name].world().intersect(by_name[obj_name].world()).Volume()
-                    if overlap>1e-3: targeted.append({"parts":[tool_name,obj_name],"overlap_mm3":round(overlap,3)})
-                for vessel in ("protein_jar","blender_cup","blender_base"):
-                    overlap = by_name[obj_name].world().intersect(by_name[vessel].world()).Volume()
-                    if overlap>1e-3: targeted.append({"parts":[obj_name,vessel],"overlap_mm3":round(overlap,3)})
-            check("keypose_tool_vessel",not targeted,"Held tool intersects its palm/wrist or a vessel wall",
-                  pose=frame["id"],collisions=targeted)
         check("human_power_control",not frame["robot_actuates_blender"],"The robot must leave the power button to the human",pose=frame["id"])
         samples.append({"pose":frame["id"],"arms":arms,"legs":legs,"collisions":collisions})
     final = frames[-1]
     check("handoff",final["human_ready"] and not final["blender_open"] and final["powder_scoops"]==p.scoop_count,
           "The final state must contain the specified scoops, a closed cap and the human handoff")
+    path_summary,segments,path_failures,diagnostics = validate_paths(base_parts,p,frames,checker)
+    failures.extend(path_failures)
     return {"status":"fail" if failures else "pass","parts":measured,"checks":checks,"failures":failures,
             "motion_samples":samples,"recipe":plan,"sequence_frames":len(frames),
-            "scope":"Valid solids, recipe bounds, IK/FK, held transforms, nominal cap helix, arm/body/worktop intersections, and held scoop/carafe versus palm/wrist/vessel walls at listed key poses. Intermediate paths, all-pairs collisions, grip forces, balance, fluid flow and hardware torque are not qualified.",
+            "path_sampling":path_summary,"trajectory_segments":segments,"diagnostic_poses":diagnostics,
+            "collision_stats":checker.stats(),
+            "scope":"Solid/recipe/IK/FK/attachment/cap checks plus exact selected B-rep intersections at key poses and sampled intermediate poses. Limbs versus body/station/objects; objects versus body/station/other objects; body versus worktop. Adjacent mounting contacts and internal robot self-collisions are excluded. Finite sampling does not certify continuous or all-pairs collision freedom, balance, grip forces, fluid flow or hardware torque.",
             "hardware_status":"Digital concept; no constructed robot or calibrated vendor mechanism."}

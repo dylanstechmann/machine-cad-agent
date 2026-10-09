@@ -27,8 +27,11 @@ def run_command(*args: str) -> dict:
     env = os.environ.copy()
     env["MACHINE_CAD_ROOT"] = str(root)
     env["PYTHONPATH"] = str(root / "src")
-    completed = subprocess.run([sys.executable, "-m", "machine_cad", *args], cwd=root,
-                               env=env, capture_output=True, text=True, timeout=180)
+    try:
+        completed = subprocess.run([sys.executable, "-m", "machine_cad", *args], cwd=root,
+                                   env=env, capture_output=True, text=True, timeout=170)
+    except subprocess.TimeoutExpired as error:
+        raise ToolError("CAD operation exceeded 170 seconds. No new passing report was confirmed; inspect diagnostics or reduce the revision before retrying.") from error
     if completed.returncode not in (0, 1):
         raise ToolError((completed.stdout or completed.stderr)[-4000:])
     try:
@@ -55,7 +58,7 @@ def get_parameters() -> dict[str, Any]:
 
 @mcp.tool(annotations=BUILD_OUTPUTS)
 def build_model(parameter_patch: dict[str, Any] | None = None, label: str = "pocket-pal") -> dict[str, Any]:
-    """Generate Pocket Pal, check key poses and recipe bounds, render views, and gate exports.
+    """Generate Pocket Pal, check key/intermediate poses and recipe bounds, and gate exports.
 
     Overrides apply to this build only; edit configs/pocket_pal.json to persist a new baseline.
     Returns a build identifier, explicit failures and artifact directory.
@@ -114,6 +117,38 @@ def get_sequence(build_id: str | None = None, start_index: int = 0, max_frames: 
     end = min(len(frames),start_index+max_frames)
     return {"build_id":report["build_id"],**plan,"total_frames":len(frames),"start_index":start_index,
             "next_index":end if end<len(frames) else None,"frames":frames[start_index:end]}
+
+
+@mcp.tool(annotations=READ_ONLY)
+def get_motion_report(build_id: str | None = None, start_segment: int = 0, max_segments: int = 12) -> dict[str, Any]:
+    """Read sampled-path policy, spacing, failures and a page of checked intervals.
+
+    Follow next_segment for more. Finite sampled checks are not a continuous
+    collision certificate. Diagnostic views identify the first failing samples.
+    """
+    _,report = fresh_build(build_id)
+    segments = report["trajectory_segments"]
+    if not 0<=start_segment<len(segments) or not 1<=max_segments<=24:
+        raise ToolError("start_segment must identify an existing interval; max_segments must be 1-24")
+    end = min(len(segments),start_segment+max_segments)
+    return {"build_id":report["build_id"],"summary":report["path_sampling"],"scope":report["scope"],
+            "collision_stats":report["collision_stats"],"diagnostic_views":report["diagnostic_views"],
+            "total_segments":len(segments),"start_segment":start_segment,"next_segment":end if end<len(segments) else None,
+            "segments":segments[start_segment:end]}
+
+
+@mcp.tool(annotations=READ_ONLY)
+def render_motion_failure(diagnostic_index: int = 0, build_id: str | None = None) -> list[Image]:
+    """Return a native PNG of a rendered failing intermediate sample (indices 0-3).
+
+    Read get_motion_report for available diagnostic indices. Unreachable limbs
+    produce numeric evidence instead of a fabricated pose.
+    """
+    directory,report = fresh_build(build_id)
+    views = report["diagnostic_views"]
+    if not 0<=diagnostic_index<len(views): raise ToolError("No diagnostic at this index")
+    if not views[diagnostic_index]["png"]: raise ToolError("This sample is unreachable; read its numeric failure")
+    return [Image(path=directory/views[diagnostic_index]["png"])]
 
 
 @mcp.tool(annotations=READ_ONLY)

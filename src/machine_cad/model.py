@@ -123,7 +123,7 @@ def templates(p):
         add("palm_"+side,box(p.gripper_max_opening_mm+24,22,14).translate((0,0,p.tool_offset_mm)),
             description="Parallel jaw crossbar; wrist rotation and tilt are explicit",group="tool_"+side,color=DARK)
         for jaw in ("negative","positive"):
-            add(f"jaw_{side}_{jaw}",box(8,18,60).translate((0,0,10)),
+            add(f"jaw_{side}_{jaw}",box(8,18,p.tool_offset_mm+15).translate((0,0,(p.tool_offset_mm-25)/2)),
                 description="Translating gripper finger",group=f"jaw_{side}_{jaw}",color=CORAL)
         add("upper_leg_"+side,link(p.leg_upper_mm).translate((11,0,0)),group="thigh_"+side,color=PURPLE)
         add("lower_leg_"+side,link(p.leg_lower_mm).translate((-11,0,0)),group="shin_"+side)
@@ -131,9 +131,9 @@ def templates(p):
         add("foot_"+side,foot,group="foot_"+side,color=GOLD)
 
     h = p.bench_height_mm
-    add("worktop",box(640,420,12),(0,215,h-6),"fixture-study","Low preparation station",color=(.70,.77,.78,1))
+    add("worktop",box(640,360,12),(0,245,h-6),"fixture-study","Preparation station with front clearance for hips and legs",color=(.70,.77,.78,1))
     for x in (-280,280):
-        for y in (40,380):
+        for y in (90,380):
             add(f"bench_leg_{x}_{y}",box(20,20,h-12),(x,y,(h-12)/2),"fixture-study",color=DARK)
     add("protein_jar",cup(55,127,3),(-110,190,h),"vessel-envelope","Nominal vegan protein container",color=(.66,.82,.42,1))
     add("jar_lid",lid(60,58.5),category="vessel-envelope",description="Nominal cap envelope; thread path is kinematic",group="object_jar_lid",color=GOLD)
@@ -156,17 +156,17 @@ def templates(p):
     for name,x,inner,outer in (("jar_fixture",-110,58.5,65),("blender_fixture",110,p.blender_internal_radius_mm+p.vessel_wall_mm+2.5,
                                                                p.blender_internal_radius_mm+p.vessel_wall_mm+9)):
         add(name,ring(outer,inner,20),(x,190,h),"fixture-study","Counter-torque fixture envelope; mounting force unmeasured",color=CORAL)
-    for name,position,radius,height in (("jar_lid_stand",(-230,155,h),62,33),
-                                       ("blender_lid_stand",(250,285,h),48,28)):
+    for name,position,radius,height in (("jar_lid_stand",(-230,105,h),50,44),
+                                       ("blender_lid_stand",(250,285,h),35,39)):
         stand = cq.Workplane("XY").circle(18).extrude(height-5).union(
             cq.Workplane("XY").circle(radius).extrude(5).translate((0,0,height-5))).val()
         add(name,stand,position,"fixture-study","Raised cap parking pad",color=(.5,.58,.64,1))
-    holder = box(24,20,52).translate((0,0,26))
+    holder = box(24,20,49).translate((0,0,24.5))
     add("scoop_stand",holder,(-230,315,h),"fixture-study","Support under the handle beyond the gripper fingers",color=(.5,.58,.64,1))
     return parts
 
 
-def pose_parts(parts,p,frame):
+def pose_parts(parts,p,frame,include_visualization=True):
     arms = {s:solve_arm(p,s,a["tcp_mm"],a["euler_deg"],frame["body_y_mm"]) for s,a in frame["arms"].items()}
     legs = {s:solve_leg(p,s,frame["feet"][s],frame["body_y_mm"]) for s in ("left","right")}
     if not all(v["reachable"] for v in (*arms.values(),*legs.values())):
@@ -193,13 +193,13 @@ def pose_parts(parts,p,frame):
             loc = tool_location(obj["position_mm"],obj["euler_deg"])
         result.append(replace(part,loc=loc))
     h = p.bench_height_mm
-    if frame["fill_ml"]>0:
+    if include_visualization and frame["fill_ml"]>0:
         height = min(p.blender_internal_height_mm,frame["fill_ml"]*1000/(math.pi*p.blender_internal_radius_mm**2))
         liquid = cylinder(p.blender_internal_radius_mm-.3,max(.5,height))
         result.append(Component("shake_volume_preview",liquid,tool_location((110,190,h+p.blender_base_height_mm+p.vessel_wall_mm)),
                                 "visualization","Volume illustration, not fluid dynamics",color=(.84,.76,.57,.85)))
     carafe_remaining = max(0,p.water_available_ml-frame["water_ml"])
-    if carafe_remaining:
+    if include_visualization and carafe_remaining:
         height = min(152,carafe_remaining*1000/(math.pi*38**2))
         obj = frame["objects"]["carafe"]
         loc = tool_location(obj["position_mm"],obj["euler_deg"])*tool_location((0,0,-117))

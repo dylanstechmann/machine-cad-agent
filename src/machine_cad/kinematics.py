@@ -72,7 +72,7 @@ def solve_leg(p, side, ankle, body_y=0):
     dy,down = ankle[1]-hip[1],hip[2]-ankle[2]
     distance = math.hypot(dy,down)
     a,b = p.leg_upper_mm,p.leg_lower_mm
-    if distance > a+b+1e-7 or distance < abs(a-b)-1e-7:
+    if abs(ankle[0]-hip[0])>1e-7 or distance < 1e-8 or distance > a+b+1e-7 or distance < abs(a-b)-1e-7:
         return {"reachable":False,"distance_mm":distance}
     angle = math.atan2(dy,down)+math.acos(max(-1,min(1,(a*a+distance*distance-b*b)/(2*a*distance))))
     knee = (hip[0],hip[1]+a*math.sin(angle),hip[2]-a*math.cos(angle))

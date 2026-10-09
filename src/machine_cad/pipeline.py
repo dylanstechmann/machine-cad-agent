@@ -34,6 +34,7 @@ def write_json(path: Path,data):
 
 
 def inspect(root: Path,patch: dict|None=None):
+    source_before = source_digest(root)
     p = load_parameters(root,patch)
     base = templates(p)
     frames = make_sequence(p)
@@ -43,8 +44,10 @@ def inspect(root: Path,patch: dict|None=None):
         # Preserve numeric failure diagnostics even when no limb can be posed.
         parts = base
     report = validate(parts,p,base)
-    report.update({"schema_version":2,"model":"Pocket_Pal","units":{"length":"mm","volume":"mL","torque":"N m"},
-                   "parameters":p.model_dump(),"source_sha256":source_digest(root),
+    if source_digest(root)!=source_before:
+        raise ValueError("Source changed during inspection. Repeat the operation with stable source files.")
+    report.update({"schema_version":3,"model":"Pocket_Pal","units":{"length":"mm","volume":"mL","torque":"N m"},
+                   "parameters":p.model_dump(),"source_sha256":source_before,
                    "dependencies":{n:importlib.metadata.version(n) for n in ("cadquery","mcp","CairoSVG")}})
     return p,parts,base,frames,report
 
@@ -73,6 +76,8 @@ def build(root: Path,patch: dict|None=None,label="pocket-pal"):
     build_id = f"{label}-{digest}"
     directory = root/"builds"/build_id
     directory.mkdir(parents=True,exist_ok=True)
+    # An interrupted rebuild must not leave a previous passing manifest over partial new output.
+    (directory/"report.json").unlink(missing_ok=True)
     report.update({"build_id":build_id,"created_at_utc":datetime.now(timezone.utc).isoformat(),
                    "artifact_directory":directory.relative_to(root).as_posix(),"stale_source":False})
     write_json(directory/"parameters.json",p.model_dump())
@@ -99,8 +104,29 @@ def build(root: Path,patch: dict|None=None,label="pocket-pal"):
             selected = [v for v in selected if v.group!="stationary" and not v.group.startswith("object_") and v.category!="visualization"]
         render_view(assembly(selected).toCompound(),direction,views/f"{name}.svg")
     assy.export(str(directory/"assembly.glb"))
+    diagnostic_views = []
+    diagnostic_dir = directory/"diagnostics"
+    for i,diagnostic in enumerate(report.pop("diagnostic_poses")):
+        frame = diagnostic["frame"]
+        item = {"sample":frame["interval"],"failure":diagnostic["failure"],"glb":None,"png":None}
+        try:
+            posed = pose_parts(base,p,frame)
+        except ValueError:
+            diagnostic_views.append(item)
+            continue
+        diagnostic_dir.mkdir(exist_ok=True)
+        stem = f"{i:03d}"
+        assembly(posed).export(str(diagnostic_dir/f"{stem}.glb"))
+        render_view(assembly(posed).toCompound(),(1,1.4,1),diagnostic_dir/f"{stem}.svg")
+        item.update(glb=f"diagnostics/{stem}.glb",png=f"diagnostics/{stem}.png")
+        diagnostic_views.append(item)
+    report["diagnostic_views"] = diagnostic_views
+    write_json(directory/"trajectory.json",{"build_id":build_id,"source_sha256":report["source_sha256"],"units":report["units"],
+        "summary":report["path_sampling"],"collision_stats":report["collision_stats"],
+        "segments":report["trajectory_segments"],"diagnostic_views":diagnostic_views})
     write_json(directory/"sequence.json",{"model":"Pocket_Pal","mode":"discrete kinematic key poses; no hardware actuation",
-        "recipe":report["recipe"],"frames":frames,"human_actions":["Press the blender power button","Drink the shake","Thank Pocket Pal"],
+        "recipe":report["recipe"],"frames":frames,"path_sampling":report["path_sampling"],
+        "human_actions":["Press the blender power button","Drink the shake","Thank Pocket Pal"],
         "robot_reply":"You're welcome!"})
     report["timeline"] = [{key:f[key] for key in ("index","id","label","phase","dialogue","fill_ml","headspace_ml","glb")} for f in frames]
     physical = [v for v in parts if v.category!="visualization"]
@@ -109,6 +135,8 @@ def build(root: Path,patch: dict|None=None,label="pocket-pal"):
         writer.writeheader()
         writer.writerows({"name":v.name,"category":v.category,"quantity":1,"description":v.description} for v in physical)
     report["fabrication_exports"] = report["status"]=="pass"
+    if source_digest(root)!=report["source_sha256"]:
+        raise ValueError("Source changed during generation. Rebuild before publishing or exporting this revision.")
     if report["fabrication_exports"]:
         export_dir = directory/"parts"
         export_dir.mkdir(exist_ok=True)
@@ -119,6 +147,8 @@ def build(root: Path,patch: dict|None=None,label="pocket-pal"):
                 part.shape.exportStl(str(export_dir/f"{part.name}.stl"),tolerance=.05,angularTolerance=.1,relative=False)
     report["artifacts"] = [{"path":v.relative_to(root).as_posix(),"bytes":v.stat().st_size,
         "sha256":hashlib.sha256(v.read_bytes()).hexdigest()} for v in sorted(directory.rglob("*")) if v.is_file() and v.name!="report.json"]
+    if source_digest(root)!=report["source_sha256"]:
+        raise ValueError("Source changed before build publication. Repeat the build.")
     write_json(directory/"report.json",report)
     write_json(root/"builds"/"latest.json",{"build_id":build_id})
     return report

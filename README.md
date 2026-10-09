@@ -88,6 +88,8 @@ docker compose --project-directory /absolute/path/to/machine-cad-agent -f /absol
 | `measure_part` | Actual solid bounds, volume and placement |
 | `render_views` | Native PNG images for VLM inspection |
 | `get_sequence` | Paged tool poses, held objects, fill states and cap paths |
+| `get_motion_report` | Paged interval checks, sampling policy, spacing and failures |
+| `render_motion_failure` | Native PNG of a failing intermediate sample, when reachable |
 | `export_files` | STEP/STL/BOM paths for a fresh passing build |
 
 Example agent task:
@@ -95,6 +97,11 @@ Example agent task:
 > Make a trial using two scoops. Read the recipe and motion report, inspect the
 > robot front and scoop-transfer images, and list exports if the digital checks
 > pass. Leave the canonical configuration unchanged until the trial is reviewed.
+
+Use `get_motion_report` to inspect the intermediate route. When an interval
+fails, its report names the source/destination poses, sample fraction and
+overlapping parts. `render_motion_failure` supplies a native diagnostic image.
+Both paged tools return a next-page index to keep agent feedback manageable.
 
 Overrides affect only that build. Persistent edits go in `configs/pocket_pal.json`
 or Python. A source/config change makes previous outputs stale. Follow
@@ -108,6 +115,9 @@ or Python. A source/config change makes previous outputs stale. Follow
   hinge plates and translating jaws. Wrist orientation represents a future
   three-axis gimbal; motor selection and detailed transmission are outstanding.
 - Two-link sagittal leg poses and planted/swing feet.
+- Intermediate geometric sampling, with fresh IK/FK at each sample. Thread yaw
+  retains its winding, a tipped scoop keeps its bowl over the cup, and grasp,
+  release and recipe events remain discrete.
 - Protein jar, measured hemispherical scoop, water carafe, portable-blender
   envelopes, cap parking pads and fixture packaging.
 - Default recipe: 200 mL initial water, 3 × 30 mL nominal scoop volume, 210 mL
@@ -118,6 +128,9 @@ or Python. A source/config change makes previous outputs stale. Follow
   excessive axial error or invalid feedback. It drives no actuator.
 - Six PNG/SVG views, a GLB per key pose, assembly and individual STEP files,
   printable/fixture-study STL files, CSV BOM and JSON recipe/motion/report data.
+- A separate `trajectory.json` records interval counts, observed spacing,
+  collision evidence, sampling limits and build/source provenance. Up to four
+  failing intermediate poses receive diagnostic PNG/GLB previews.
 - Digital checks and a failure export gate, exercised through real MCP stdio.
 
 STEP files can be edited or inspected in open source FreeCAD or another CAD
@@ -132,16 +145,21 @@ or brand artwork.
 | `model.py` | Named solid geometry and rigid placements |
 | `kinematics.py` | Arm IK/FK, leg solving and tool transforms |
 | `sequence.py` | Task states, recipe accounting, cap path and torque policy |
+| `trajectory.py` | Interpolation, discrete ownership/events and sample subdivision |
+| `collisions.py` | Conservative box pruning and cached exact intersection volumes |
 | `validation.py` | Bounded digital checks and explicit failure details |
 | `pipeline.py` | Export gate, previews and build provenance |
 | `mcp_server.py` | Agent tools with structured results and native images |
 | `web/` | Local artifact viewer and browser handoff simulation |
 | `tests/` | Digital geometry and protocol checks |
 
-Passing means the **listed checks** passed. Every key pose is checked for arm
-intersection with the body/worktop; held scoop/carafe shapes are also checked
-against their palm/wrist and stationary vessel walls. Intermediate paths and
-all-pairs collision freedom are not certified. Purchased fit, clamping forces,
+Passing means the **listed checks** passed. Key poses and sampled intermediate
+poses check limbs against the body/station/objects, objects against the
+body/station/other objects, and the body against the worktop. Foot clearance,
+held transforms and recipe bounds are also checked. Internal robot
+self-collisions and intentional mounting interfaces are excluded.
+Finite sampling does not certify continuous or all-pairs collision freedom.
+Purchased fit, clamping forces,
 strength, food-contact materials, dosing, spill handling, sensors, motor drive,
 walking balance and physical cap torque require further engineering.
 
@@ -150,6 +168,16 @@ physical development. GitHub CI builds the pinned runtime, runs the tests and
 the overfill demo, and retains artifacts for seven days. Build IDs identify
 effective parameters, source and dependency versions; serialization timestamps
 are not promised to be byte-identical.
+
+The sampling policy uses at least four subdivisions per interval, with more
+for translation, rotation and jaw travel. Its 20 mm translation allowance,
+15 degree angle target and 5 mm jaw target guide subdivision; the report also
+gives observed tool spacing. These are not bounds on all IK link sweeps. If
+the 4,096-interior-sample budget is exhausted or an ownership transition is
+undefined, the report is incomplete and fabrication exports are withheld.
+Source changes during inspection/generation also prevent publication of a
+passing revision. Direct viewer STEP/STL URLs enforce freshness and passing
+status, alongside the MCP export gate.
 
 ## Credits
 

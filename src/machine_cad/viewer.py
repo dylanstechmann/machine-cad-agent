@@ -43,6 +43,8 @@ def serve_viewer(root: Path, host: str, port: int):
                     allowed = {Path(a["path"]).relative_to(report["artifact_directory"]).as_posix()
                                for a in report["artifacts"]} | {"report.json"}
                     file = (directory / name).resolve()
+                    if file.suffix.lower() in (".step",".stl") and (report["stale_source"] or not report["fabrication_exports"]):
+                        raise ValueError("Fabrication exports require a fresh passing report")
                     if name not in allowed or not file.is_relative_to(directory) or not file.is_file():
                         raise ValueError("Artifact does not exist")
                     kind = "model/gltf-binary" if file.suffix == ".glb" else mimetypes.guess_type(file.name)[0]

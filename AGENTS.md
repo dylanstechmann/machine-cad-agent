@@ -8,6 +8,9 @@ or physical work.
 - Execute builds and tests in the `dev` Docker Compose service.
 - Dimensions use mm, recipe volumes mL, torque N m. Keep named components,
   held-object transforms, FK evidence and build provenance explicit.
+- Inspect paged motion evidence and failing-sample images. Intermediate
+  samples must retain cap winding, scoop bowl centering and discrete events.
+  Incomplete sampling or unexplained ownership transitions withhold exports.
 - Rebuild after edits, read all failures, and inspect rendered PNGs. Do not
   claim an image was checked by a VLM unless that happened.
 - Pass covers the exact scope in the report. Never turn nominal thread,
