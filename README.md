@@ -54,7 +54,16 @@ deterministic pipeline exercise, not an autonomous engineering benchmark.
 
 The viewer provides an orbitable scene, play/pause and a pose slider, recipe
 state, optional voice, a simulated human handoff, diagnostic revisions and
-downloads. It is local to your computer and controls no hardware.
+downloads. A public, static version of Pocket Pal's animated scene is published
+at [dylanstechmann.github.io/machine-cad-agent](https://dylanstechmann.github.io/machine-cad-agent/).
+It includes a replay-delay control and browser-only handoff. Neither viewer
+controls hardware.
+
+The Pages workflow packages the generated key poses into one animated GLB after
+the CAD demo passes. To regenerate the static assets from a local successful
+build, run `python scripts/build_github_pages_demo.py`; generated site assets are
+checked in under `docs/assets/` so the published demo is inspectable and
+downloadable from the repository.
 
 ```powershell
 .\run.ps1 test          # Geometry, STEP and real stdio MCP checks

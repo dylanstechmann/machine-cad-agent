@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -24,6 +27,17 @@ jobs:
         run: docker compose run --rm -T dev python -m unittest discover -s tests -v
       - name: Build pass, overfill failure and repaired revisions
         run: docker compose run --rm -T dev python -m machine_cad demo
+      - name: Configure GitHub Pages
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        uses: actions/configure-pages@v5
+      - name: Package animated browser demo
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        run: python scripts/build_github_pages_demo.py
+      - name: Upload GitHub Pages artifact
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -31,3 +45,19 @@ jobs:
           path: builds/
           if-no-files-found: warn
           retention-days: 7
+
+  deploy:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

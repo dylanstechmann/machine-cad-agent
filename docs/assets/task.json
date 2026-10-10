@@ -1,0 +1,1643 @@
+{
+  "build_id": "pocket-pal-humanoid-ecb6269802bb",
+  "status": "pass",
+  "scope": "Solid/recipe/IK/FK/attachment/cap checks plus exact selected B-rep intersections at key poses and sampled intermediate poses. Key poses check digit and toe solids; sampled paths check main hand/arm/leg/foot envelopes. Digit contact with the object explicitly held by that hand is treated as intentional geometric grasp contact. Limbs versus body/station/objects; objects versus body/station/other objects; body versus worktop. Adjacent mounting contacts and internal robot self-collisions are excluded. Finite sampling does not certify continuous or all-pairs collision freedom, balance, grip forces, fluid flow or hardware torque.",
+  "source_sha256": "b7c9f03089f2ee71e496564fcb1f3949ec42c0d98ff6c34b8977de35c6fc168e",
+  "path_sampling": {
+    "status": "pass",
+    "segment_count": 158,
+    "key_pose_count": 159,
+    "required_interior_samples": 1371,
+    "checked_interior_samples": 1371,
+    "total_checked_poses": 1530,
+    "failed_segments": 0,
+    "policy": {
+      "translation_allowance_step_mm": 20.0,
+      "angular_step_deg": 15.0,
+      "jaw_step_mm": 5.0,
+      "minimum_subdivisions": 4,
+      "maximum_interior_samples": 4096,
+      "tool_rotation_radius_allowance_mm": 150.0,
+      "detailed_digit_and_toe_collisions": "Checked at task key poses; intermediate samples check the main hand/arm/leg/foot envelopes",
+      "interpolation": "Cartesian tool/foot/body interpolation; scoop world-bowl interpolation; nearest-equivalent ordinary Euler commands; unwrapped thread yaw",
+      "events": "Pickup at destination; release at source; recipe and other task events only at key poses",
+      "limit": "Finite samples only; IK link sweeps and continuous collision freedom are not certified"
+    },
+    "max_observed_tcp_gap_mm": 20.0,
+    "max_observed_euler_gap_deg": 7.557
+  },
+  "physical_readiness": {
+    "manufacturing_release": false,
+    "hardware_match_status": "reference_only_unmeasured",
+    "blocker_count": 8
+  },
+  "pose_interval_seconds": 0.8,
+  "duration_seconds": 126.4,
+  "recipe": {
+    "capacity_ml": 657.787,
+    "initial_water_ml": 200.0,
+    "scoop_count": 3,
+    "scoop_capacity_ml": 30.0,
+    "powder_displacement_bound_ml": 90.0,
+    "top_up_water_ml": 210.0,
+    "total_water_ml": 410.0,
+    "final_fill_ml": 500.0,
+    "headspace_ml": 157.787,
+    "minimum_headspace_ml": 80.0,
+    "calibration_status": "nominal volume and torque inputs; no hardware measurements",
+    "cap_target_torque_nm": 0.45,
+    "cap_stop_torque_nm": 0.7
+  },
+  "frames": [
+    {
+      "label": "Walk to the preparation station",
+      "phase": "walking",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Walk to the preparation station",
+      "phase": "walking",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Walk to the preparation station",
+      "phase": "walking",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Walk to the preparation station",
+      "phase": "walking",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Walk to the preparation station",
+      "phase": "walking",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Hello, I'm Pocket Pal",
+      "phase": "greeting",
+      "dialogue": "Hello! I'll prepare your protein shake.",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the hand in the clear lane before crossing the cap stands",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the empty hand clear of the vessels",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the empty hand above the station",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move forward before crossing toward the grip",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the grip from above",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Grip the protein container cap",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the protein container",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the protein cap clear",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the cap outward before approaching its stand",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the protein cap above its parking pad",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Park the protein cap",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Release and lift the empty hand clear",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Withdraw above the station",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lower the empty hand outside the vessels",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move in front of the cap parking area before lowering",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the hand to rest",
+      "phase": "open_jar",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the hand in the clear lane before crossing the cap stands",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the empty hand clear of the vessels",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the empty hand above the station",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move forward before crossing toward the grip",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the grip from above",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Grip the portable blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Unscrew the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the blender cap clear",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the blender cap above its parking pad",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Park the blender cap",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Release and lift the empty hand clear",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move outward before withdrawing toward the body",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Withdraw above the station",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lower the empty hand outside the vessels",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move in front of the cap parking area before lowering",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the hand to rest",
+      "phase": "open_blender",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the hand in the clear lane before crossing the cap stands",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the empty hand clear of the vessels",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the empty hand above the station",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move forward before crossing toward the grip",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the grip from above",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Pick up the water carafe",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the carafe clear of the vessels",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry water above the open cup",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift while tilting clear of the cup rim",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Tilt the carafe above the cup",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 0.0,
+      "headspace_ml": 657.787,
+      "powder_scoops": 0,
+      "water_ml": 0.0,
+      "human_ready": false
+    },
+    {
+      "label": "Pour 200 mL water",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the tilted carafe clear",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift while recovering the carafe upright",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the carafe upright",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the carafe above its resting position",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Put the water carafe down",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Release and lift the empty hand clear",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Withdraw above the station",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lower the empty hand outside the vessels",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move in front of the cap parking area before lowering",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the hand to rest",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the hand in the clear lane before crossing the cap stands",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the empty hand clear of the vessels",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the empty hand above the station",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move forward before crossing toward the grip",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the grip from above",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Pick up the measuring scoop",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the scoop clear before crossing the station",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the jar through its open rim",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Measure scoop 1 of 3",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the level scoop clear of the container",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the level scoop above the cup",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Orient the scoop away from the forearm",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 200.0,
+      "headspace_ml": 457.78700000000003,
+      "powder_scoops": 0,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Tip scoop 1 into the blender",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Recover the scoop upright above the cup",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the level scoop to its carry orientation",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the scoop clear of the jar",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the jar through its open rim",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Measure scoop 2 of 3",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the level scoop clear of the container",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the level scoop above the cup",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Orient the scoop away from the forearm",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 230.0,
+      "headspace_ml": 427.78700000000003,
+      "powder_scoops": 1,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Tip scoop 2 into the blender",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Recover the scoop upright above the cup",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the level scoop to its carry orientation",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the scoop clear of the jar",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the jar through its open rim",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Measure scoop 3 of 3",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the level scoop clear of the container",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the level scoop above the cup",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Orient the scoop away from the forearm",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 260.0,
+      "headspace_ml": 397.78700000000003,
+      "powder_scoops": 2,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Tip scoop 3 into the blender",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Recover the scoop upright above the cup",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the level scoop to its carry orientation",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the scoop clear of the jar",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the scoop to its stand",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Release and lift the empty hand clear",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Withdraw above the station",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lower the empty hand outside the vessels",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move in front of the cap parking area before lowering",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the hand to rest",
+      "phase": "powder",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the hand in the clear lane before crossing the cap stands",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the empty hand clear of the vessels",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the empty hand above the station",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move forward before crossing toward the grip",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the grip from above",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Pick up the water carafe",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the carafe clear of the vessels",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry water above the open cup",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift while tilting clear of the cup rim",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Tilt the carafe above the cup",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 290.0,
+      "headspace_ml": 367.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 200.0,
+      "human_ready": false
+    },
+    {
+      "label": "Pour 210 mL water",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the tilted carafe clear",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift while recovering the carafe upright",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the carafe upright",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the carafe above its resting position",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Put the water carafe down",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Release and lift the empty hand clear",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Withdraw above the station",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lower the empty hand outside the vessels",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move in front of the cap parking area before lowering",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the hand to rest",
+      "phase": "water",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the hand in the clear lane before crossing the cap stands",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move the empty hand clear of the vessels",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Raise the empty hand above the station",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move forward before crossing toward the grip",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Approach the grip from above",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Retrieve the blender cap",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lift the cap above the vessels",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Carry the cap over the blender axis",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Align the cap and thread axis",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Screw the cap down with a limited torque policy",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Cap seated; stop at the torque target",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Release and lift the empty hand clear",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move outward before withdrawing toward the body",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Withdraw above the station",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Lower the empty hand outside the vessels",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Move in front of the cap parking area before lowering",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Return the hand to rest",
+      "phase": "close_blender",
+      "dialogue": "",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": false
+    },
+    {
+      "label": "Ready for the human to blend and enjoy",
+      "phase": "handoff",
+      "dialogue": "Your shake is ready to blend. Please press the blender button, then enjoy!",
+      "fill_ml": 500.0,
+      "headspace_ml": 157.78700000000003,
+      "powder_scoops": 3,
+      "water_ml": 410.0,
+      "human_ready": true
+    }
+  ]
+}
