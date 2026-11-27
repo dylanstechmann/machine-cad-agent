@@ -59,6 +59,15 @@ class GeometryTests(unittest.TestCase):
         self.assertEqual((a["final_fill_ml"],b["final_fill_ml"]),(500,500))
         self.assertAlmostEqual(a["headspace_ml"],157.787,places=3)
 
+    def test_carafe_budget_distinguishes_short_supply_from_excess_stock(self):
+        baseline = recipe(self.p)
+        self.assertEqual(baseline["water_remaining_after_pours_ml"], 190)
+        for available in (400, 700):
+            with self.subTest(available=available):
+                plan = recipe(load_parameters(self.root, {"water_available_ml": available}))
+                self.assertEqual(plan["water_shortfall_ml"], max(0, 410 - available))
+                self.assertEqual(plan["carafe_overflow_ml"], max(0, available - plan["carafe_capacity_ml"]))
+
     def test_headspace_gate_uses_calculated_volume_before_display_rounding(self):
         capacity = math.pi * self.p.blender_internal_radius_mm ** 2 * self.p.blender_internal_height_mm / 1000
         actual_headspace = capacity - self.p.target_fill_ml

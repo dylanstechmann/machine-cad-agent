@@ -4,6 +4,7 @@ import copy
 import math
 from numbers import Real
 from .kinematics import rotate
+from .parameters import CARAFE_INTERNAL_HEIGHT_MM, CARAFE_INTERNAL_RADIUS_MM
 
 
 def recipe(p):
@@ -11,10 +12,16 @@ def recipe(p):
     powder = p.scoop_count*p.scoop_ml
     top_up = max(0,p.target_fill_ml-p.initial_water_ml-powder)
     final = p.initial_water_ml+powder+top_up
-    return {"capacity_ml":capacity,"initial_water_ml":p.initial_water_ml,
+    water_required = p.initial_water_ml + top_up
+    carafe_capacity = math.pi * CARAFE_INTERNAL_RADIUS_MM**2 * CARAFE_INTERNAL_HEIGHT_MM / 1000
+    return {"carafe_capacity_ml": carafe_capacity, "water_available_ml": p.water_available_ml,
+            "water_remaining_after_pours_ml": max(0, p.water_available_ml - water_required),
+            "water_shortfall_ml": max(0, water_required - p.water_available_ml),
+            "carafe_overflow_ml": max(0, p.water_available_ml - carafe_capacity),
+            "capacity_ml":capacity,"initial_water_ml":p.initial_water_ml,
             "scoop_count":p.scoop_count,"scoop_capacity_ml":p.scoop_ml,
             "powder_displacement_bound_ml":powder,"top_up_water_ml":top_up,
-            "total_water_ml":p.initial_water_ml+top_up,"final_fill_ml":final,
+            "total_water_ml":water_required,"final_fill_ml":final,
             "headspace_ml":capacity-final,"minimum_headspace_ml":p.minimum_headspace_ml,
             "calibration_status":"nominal volume and torque inputs; no hardware measurements"}
 

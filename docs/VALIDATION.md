@@ -154,3 +154,5 @@ react cap torque. Printable studies require manufacturing development.
 Run `.\run.ps1 test` or `./run.sh test`, followed by the demo, to reproduce the
 digital evidence. Machine-specific artifacts and protocol logs remain in
 ignored `builds/`. A passing build does not authorize physical operation.
+
+The recipe report compares the two planned pours with the declared starting water and the modeled carafe cavity. It records remaining stock, supply shortfall, and starting stock above capacity in mL. The default 600 mL supply leaves 190 mL after the two pours.

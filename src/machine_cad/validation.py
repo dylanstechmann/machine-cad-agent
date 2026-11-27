@@ -98,8 +98,9 @@ def validate(parts,p,base_parts):
           "The recipe exceeds the permitted fill or leaves too little headspace",headspace_ml=plan["headspace_ml"])
     check("recipe_target",p.initial_water_ml+p.scoop_count*p.scoop_ml<=p.target_fill_ml,
           "Initial water and powder already exceed the target fill")
-    check("water_supply",plan["total_water_ml"]<=p.water_available_ml<=math.pi*38**2*152/1000,
-          "The water supply must fit the carafe and cover both pours")
+    check("water_supply",plan["water_shortfall_ml"] == 0 and plan["carafe_overflow_ml"] == 0,
+          "The water supply must fit the carafe and cover both pours",
+          water_shortfall_ml=plan["water_shortfall_ml"], carafe_overflow_ml=plan["carafe_overflow_ml"])
     check("torque_window",p.cap_seat_min_nm<=p.cap_target_torque_nm<p.cap_stop_torque_nm
           <min(p.cap_damage_limit_nm,p.cap_reopen_limit_nm),
           "Nominal target/stop torques must fit the seating, damage and reopening window")
