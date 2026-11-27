@@ -11,11 +11,11 @@ def recipe(p):
     powder = p.scoop_count*p.scoop_ml
     top_up = max(0,p.target_fill_ml-p.initial_water_ml-powder)
     final = p.initial_water_ml+powder+top_up
-    return {"capacity_ml":round(capacity,3),"initial_water_ml":p.initial_water_ml,
+    return {"capacity_ml":capacity,"initial_water_ml":p.initial_water_ml,
             "scoop_count":p.scoop_count,"scoop_capacity_ml":p.scoop_ml,
             "powder_displacement_bound_ml":powder,"top_up_water_ml":top_up,
             "total_water_ml":p.initial_water_ml+top_up,"final_fill_ml":final,
-            "headspace_ml":round(capacity-final,3),"minimum_headspace_ml":p.minimum_headspace_ml,
+            "headspace_ml":capacity-final,"minimum_headspace_ml":p.minimum_headspace_ml,
             "calibration_status":"nominal volume and torque inputs; no hardware measurements"}
 
 

@@ -20,7 +20,29 @@ class GeometryTests(unittest.TestCase):
 
     def test_baseline_checks_and_single_solids(self):
         self.assertEqual(self.report["status"],"pass",self.report["failures"])
-        self.assertEqual(len(self.report["parts"]),59)
+        expected = {
+            "shell_back", "faceplate", "screen_bezel", "screen_panel", "smile", "d_pad",
+            "button_a", "button_b", "start_button", "select_button", "speaker_envelope",
+            "battery_envelope", "hip_bridge", "worktop", "protein_jar", "jar_lid",
+            "jar_lid_marker", "blender_base", "blender_cup", "blender_lid", "blender_lid_marker",
+            "blender_power_button", "carafe", "scoop", "jar_fixture", "blender_fixture",
+            "jar_lid_stand", "blender_lid_stand", "scoop_stand",
+        }
+        expected.update(f"bench_leg_{x}_{y}" for x in (-280, 280) for y in (90, 380))
+        for side in ("left", "right"):
+            for component in (
+                "eye", "shoulder_mount", "shoulder_mount_ball", "upper_arm", "forearm",
+                "shoulder_pin", "elbow_pin", "elbow_joint", "wrist", "palm", "wrist_joint",
+                "upper_leg", "lower_leg", "hip_joint", "knee_joint", "ankle_joint",
+                "hip_pin", "knee_pin", "foot",
+            ):
+                expected.add(f"{component}_{side}")
+            for finger in ("thumb", "index", "middle", "ring", "pinky"):
+                expected.update(f"digit_{side}_{finger}_{part}" for part in ("proximal", "distal"))
+                expected.update(f"knuckle_{side}_{finger}_{joint}" for joint in ("mcp", "pip"))
+            for toe in ("big", "second", "middle", "fourth", "little"):
+                expected.update(f"toe_{side}_{toe}_{part}" for part in ("base", "tip", "joint"))
+        self.assertCountEqual([part["name"] for part in self.report["parts"]], expected)
         self.assertTrue(all(v["valid"] and v["solid_count"]==1 for v in self.report["parts"]))
 
     def test_measured_shell_and_cavity(self):
@@ -36,6 +58,15 @@ class GeometryTests(unittest.TestCase):
         self.assertEqual((a["top_up_water_ml"],b["top_up_water_ml"]),(210,240))
         self.assertEqual((a["final_fill_ml"],b["final_fill_ml"]),(500,500))
         self.assertAlmostEqual(a["headspace_ml"],157.787,places=3)
+
+    def test_headspace_gate_uses_calculated_volume_before_display_rounding(self):
+        capacity = math.pi * self.p.blender_internal_radius_mm ** 2 * self.p.blender_internal_height_mm / 1000
+        actual_headspace = capacity - self.p.target_fill_ml
+        threshold = (actual_headspace + round(actual_headspace, 3)) / 2
+        self.assertLess(actual_headspace, threshold)
+        report = inspect(self.root, {"minimum_headspace_ml": threshold})[4]
+        self.assertIn("recipe_headspace", [failure["check"] for failure in report["failures"]])
+        self.assertEqual(report["recipe"]["headspace_ml"], actual_headspace)
 
     def test_all_arm_fk_and_leg_lengths(self):
         for frame in self.frames:

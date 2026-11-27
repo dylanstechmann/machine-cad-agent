@@ -74,7 +74,9 @@ No additional automated tests were added or run locally for this revision.
 
 The default recipe uses 200 mL water, three nominal 30 mL scoops and 210 mL
 water top-up. The 657.787 mL modeled cavity leaves 157.787 mL headspace at
-500 mL fill. Two scoops instead require 240 mL top-up.
+500 mL fill. The volume shown here is rounded to three decimals. The recipe
+report and the headspace check use the full calculated volume. Two scoops
+instead require 240 mL top-up.
 
 The deterministic demo requests 700 mL to demonstrate a headspace failure and
 withheld STEP/STL output, then restores the default recipe.
