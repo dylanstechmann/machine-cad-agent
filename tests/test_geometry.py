@@ -68,6 +68,25 @@ class GeometryTests(unittest.TestCase):
                 self.assertEqual(plan["water_shortfall_ml"], max(0, 410 - available))
                 self.assertEqual(plan["carafe_overflow_ml"], max(0, available - plan["carafe_capacity_ml"]))
 
+    def test_pours_conserve_usable_carafe_stock(self):
+        for available, initial, target in [(600, 200, 500), (200, 250, 500), (400, 200, 500),
+                                            (900, 450, 1000)]:
+            with self.subTest(available=available, initial=initial, target=target):
+                p = load_parameters(self.root, {"water_available_ml": available, "initial_water_ml": initial,
+                                                "target_fill_ml": target})
+                plan = recipe(p)
+                frames = make_sequence(p)
+                starting = min(available, plan["carafe_capacity_ml"])
+                for frame in frames:
+                    self.assertAlmostEqual(frame["carafe_remaining_ml"] + frame["water_ml"], starting)
+                pours = [frame for frame in frames if frame.get("source") == "carafe"]
+                self.assertEqual(len(pours), 2)
+                self.assertAlmostEqual(sum(f["shortfall_ml"] for f in pours), plan["water_shortfall_ml"])
+                self.assertAlmostEqual(pours[0]["dispensing_ml"], min(initial, starting))
+                self.assertAlmostEqual(pours[1]["dispensing_ml"], min(plan["top_up_water_ml"], max(0, starting-initial)))
+                self.assertAlmostEqual(frames[-1]["carafe_remaining_ml"], plan["water_remaining_after_pours_ml"])
+                self.assertEqual(frames[-1]["human_ready"], available == 600)
+
     def test_headspace_gate_uses_calculated_volume_before_display_rounding(self):
         capacity = math.pi * self.p.blender_internal_radius_mm ** 2 * self.p.blender_internal_height_mm / 1000
         actual_headspace = capacity - self.p.target_fill_ml

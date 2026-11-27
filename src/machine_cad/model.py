@@ -282,7 +282,7 @@ def pose_parts(parts,p,frame,include_visualization=True):
         liquid = cylinder(p.blender_internal_radius_mm-.3,max(.5,height))
         result.append(Component("shake_volume_preview",liquid,tool_location((110,190,h+p.blender_base_height_mm+p.vessel_wall_mm)),
                                 "visualization","Volume illustration, not fluid dynamics",color=(.84,.76,.57,.85)))
-    carafe_remaining = max(0,p.water_available_ml-frame["water_ml"])
+    carafe_remaining = frame.get("carafe_remaining_ml", max(0,p.water_available_ml-frame["water_ml"]))
     if include_visualization and carafe_remaining:
         height = min(CARAFE_INTERNAL_HEIGHT_MM,carafe_remaining*1000/(math.pi*CARAFE_INTERNAL_RADIUS_MM**2))
         obj = frame["objects"]["carafe"]
