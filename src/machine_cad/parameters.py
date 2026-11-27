@@ -5,6 +5,10 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
+CARAFE_INTERNAL_RADIUS_MM = 38
+CARAFE_INTERNAL_HEIGHT_MM = 152
+
+
 class Parameters(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
     body_width_mm: float = Field(default=190, ge=160, le=280)

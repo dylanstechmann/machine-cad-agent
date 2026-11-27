@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 import cadquery as cq
 from .kinematics import link_location, solve_arm, solve_leg, tool_location
 from .sequence import make_sequence
+from .parameters import CARAFE_INTERNAL_HEIGHT_MM, CARAFE_INTERNAL_RADIUS_MM
 
 PURPLE = (.42,.27,.78,1)
 CREAM = (.87,.90,.85,1)
@@ -233,7 +234,7 @@ def templates(p):
     button = cq.Workplane("XZ").circle(7).extrude(4).val()
     add("blender_power_button",button,(110,190+p.blender_internal_radius_mm+6,h+16),"purchased-envelope",
         "Only the independent human operates this button",color=CORAL)
-    add("carafe",cup(38,152,3).translate((0,0,-120)),category="vessel-envelope",
+    add("carafe",cup(CARAFE_INTERNAL_RADIUS_MM,CARAFE_INTERNAL_HEIGHT_MM,3).translate((0,0,-120)),category="vessel-envelope",
         description="Open water carafe, 35 mm mouth offset from grip",group="object_carafe",color=(.5,.8,.95,.3))
     add("scoop",scoop(p),description="Hemispherical measured bowl with grippable handle",group="object_scoop",color=GOLD)
     for name,x,inner,outer in (("jar_fixture",-110,58.5,65),("blender_fixture",110,p.blender_internal_radius_mm+p.vessel_wall_mm+2.5,
@@ -281,9 +282,9 @@ def pose_parts(parts,p,frame,include_visualization=True):
         liquid = cylinder(p.blender_internal_radius_mm-.3,max(.5,height))
         result.append(Component("shake_volume_preview",liquid,tool_location((110,190,h+p.blender_base_height_mm+p.vessel_wall_mm)),
                                 "visualization","Volume illustration, not fluid dynamics",color=(.84,.76,.57,.85)))
-    carafe_remaining = max(0,p.water_available_ml-frame["water_ml"])
+    carafe_remaining = frame.get("carafe_remaining_ml", max(0,p.water_available_ml-frame["water_ml"]))
     if include_visualization and carafe_remaining:
-        height = min(152,carafe_remaining*1000/(math.pi*38**2))
+        height = min(CARAFE_INTERNAL_HEIGHT_MM,carafe_remaining*1000/(math.pi*CARAFE_INTERNAL_RADIUS_MM**2))
         obj = frame["objects"]["carafe"]
         loc = tool_location(obj["position_mm"],obj["euler_deg"])*tool_location((0,0,-117))
         result.append(Component("carafe_water_preview",cylinder(37.7,height),loc,

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import struct
 from pathlib import Path
 from typing import Any
@@ -87,7 +86,7 @@ def mesh_axis_length(document: dict[str, Any], node: dict[str, Any], axis: int) 
     return max(extents)
 
 
-def make_animation_glb(build_dir: Path, sequence: dict[str, Any], parameters: dict[str, Any]) -> bytes:
+def make_animation_glb(build_dir: Path, sequence: dict[str, Any]) -> bytes:
     frames = sequence["frames"]
     if not frames:
         raise ValueError("Task sequence has no frames")
@@ -122,20 +121,13 @@ def make_animation_glb(build_dir: Path, sequence: dict[str, Any], parameters: di
 
     carafe = base_nodes.get("carafe_water_preview")
     if carafe:
-        radius = float(parameters.get("blender_internal_radius_mm", 38.0))
-        water_available = float(parameters.get("water_available_ml", 0.0))
         base_height = mesh_axis_length(base, carafe, 2)
-        if base_height <= 0 or radius <= 0:
+        if base_height <= 0:
             raise ValueError("Carafe water preview geometry is invalid")
-        maximum_height = float(parameters.get("blender_internal_height_mm", 152.0))
-        water_heights = [
-            min(maximum_height, max(0.0, water_available - float(frame.get("water_ml", 0.0)))
-                * 1000.0 / (math.pi * radius * radius))
-            for frame in frames
-        ]
-        final_height = max(water_heights[-1], 1e-6)
         animated_scales["carafe_water_preview"] = [
-            [1.0, 1.0, max(0.001, height / final_height)] for height in water_heights
+            [1.0, 1.0, max(0.001, mesh_axis_length(doc, nodes["carafe_water_preview"], 2) / base_height)]
+            if "carafe_water_preview" in nodes else [1.0, 1.0, 0.001]
+            for doc, nodes in zip(documents, frame_nodes, strict=True)
         ]
 
     tracks: list[tuple[int, str, list[list[float]]]] = []
@@ -239,11 +231,11 @@ def main() -> int:
         raise FileNotFoundError(build_dir)
 
     sequence = json.loads((build_dir / "sequence.json").read_text())
-    parameters = json.loads((build_dir / "parameters.json").read_text())
     report = json.loads((build_dir / "report.json").read_text())
     if report.get("status") != "pass":
         raise ValueError(f"Refusing to publish a failed CAD build: {build_id}")
-    scene = make_animation_glb(build_dir, sequence, parameters)
+    parameters = json.loads((build_dir / "parameters.json").read_text())
+    scene = make_animation_glb(build_dir, sequence)
     output = root / "docs" / "assets"
     output.mkdir(parents=True, exist_ok=True)
     (output / "pocket-pal-task.glb").write_bytes(scene)

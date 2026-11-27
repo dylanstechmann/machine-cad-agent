@@ -171,6 +171,8 @@ or Python. A source/config change makes previous outputs stale. Follow
 - Default recipe: 200 mL initial water, 3 × 30 mL nominal scoop volume, 210 mL
   top-up, 500 mL fill and about 158 mL geometric headspace. Powder displacement
   is a conservative recipe input, not a mass or dissolution measurement.
+- Each water pour records requested and delivered millilitres from the carafe.
+  The storyboard holds the handoff when starting water exceeds its capacity or the pours run short.
 - Nominal cap rotation coupled to axial thread pitch. A pure feedback function
   stops at the proposed seated torque target, or faults at the hard stop,
   excessive axial error or invalid feedback. It drives no actuator.

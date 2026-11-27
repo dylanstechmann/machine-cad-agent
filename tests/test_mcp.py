@@ -1,5 +1,8 @@
+import shutil
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 from mcp import Client, StdioServerParameters
 
@@ -8,8 +11,15 @@ from machine_cad.cli import project_root
 
 class MCPTests(unittest.IsolatedAsyncioTestCase):
     async def test_real_stdio_build_measure_images_and_export_gate(self):
-        root = project_root()
-        params = StdioServerParameters(command=sys.executable,
+        source_root = project_root()
+        root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        # Copy the build inputs so the artifacts and latest-build pointer stay in the temporary project.
+        shutil.copytree(source_root / "src" / "machine_cad", root / "src" / "machine_cad",
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        shutil.copytree(source_root / "configs", root / "configs")
+        for filename in ("pyproject.toml", "uv.lock", "Dockerfile"):
+            shutil.copyfile(source_root / filename, root / filename)
+        params = StdioServerParameters(command=sys.executable, cwd=root,
                                        args=["-m", "machine_cad.mcp_server"],
                                        env={"MACHINE_CAD_ROOT": str(root), "PYTHONPATH": str(root / "src")})
         async with Client(params) as client:
@@ -21,6 +31,7 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
             data = built.structured_content
             self.assertEqual(data["status"], "pass")
             build_id = data["build_id"]
+            self.assertTrue((root / "builds" / build_id / "assembly.step").is_file())
             measured = await client.call_tool("measure_part", {"part_name": "shell_back", "build_id": build_id})
             self.assertFalse(measured.is_error)
             self.assertEqual(measured.structured_content["local_bounds"]["size_mm"], [190.0, 75.0, 210.0])

@@ -4,6 +4,7 @@ import copy
 import math
 from numbers import Real
 from .kinematics import rotate
+from .parameters import CARAFE_INTERNAL_HEIGHT_MM, CARAFE_INTERNAL_RADIUS_MM
 
 
 def recipe(p):
@@ -11,11 +12,19 @@ def recipe(p):
     powder = p.scoop_count*p.scoop_ml
     top_up = max(0,p.target_fill_ml-p.initial_water_ml-powder)
     final = p.initial_water_ml+powder+top_up
-    return {"capacity_ml":round(capacity,3),"initial_water_ml":p.initial_water_ml,
+    water_required = p.initial_water_ml + top_up
+    carafe_capacity = math.pi * CARAFE_INTERNAL_RADIUS_MM**2 * CARAFE_INTERNAL_HEIGHT_MM / 1000
+    starting_stock = min(p.water_available_ml, carafe_capacity)
+    return {"carafe_capacity_ml": carafe_capacity, "water_available_ml": p.water_available_ml,
+            "carafe_starting_stock_ml": starting_stock,
+            "water_remaining_after_pours_ml": max(0, starting_stock - water_required),
+            "water_shortfall_ml": max(0, water_required - starting_stock),
+            "carafe_overflow_ml": max(0, p.water_available_ml - carafe_capacity),
+            "capacity_ml":capacity,"initial_water_ml":p.initial_water_ml,
             "scoop_count":p.scoop_count,"scoop_capacity_ml":p.scoop_ml,
             "powder_displacement_bound_ml":powder,"top_up_water_ml":top_up,
-            "total_water_ml":p.initial_water_ml+top_up,"final_fill_ml":final,
-            "headspace_ml":round(capacity-final,3),"minimum_headspace_ml":p.minimum_headspace_ml,
+            "total_water_ml":water_required,"final_fill_ml":final,
+            "headspace_ml":capacity-final,"minimum_headspace_ml":p.minimum_headspace_ml,
             "calibration_status":"nominal volume and torque inputs; no hardware measurements"}
 
 
@@ -48,7 +57,7 @@ def make_sequence(p):
                    "blender_lid":{"position_mm":[110,190,blender_cap_z],"euler_deg":[0,0,0],"held_by":None},
                    "carafe":{"position_mm":[230,150,h+120],"euler_deg":[0,0,0],"held_by":None},
                    "scoop":{"position_mm":list(scoop_rest),"euler_deg":[0,0,0],"held_by":None}},
-        "water_ml":0.0,"powder_scoops":0,"jar_open":False,"blender_open":False,
+        "carafe_remaining_ml":plan["carafe_starting_stock_ml"],"water_ml":0.0,"powder_scoops":0,"jar_open":False,"blender_open":False,
         "human_ready":False,"robot_actuates_blender":False,"planned_torque_nm":0.0,
     }
     frames = []
@@ -165,8 +174,11 @@ def make_sequence(p):
         arm("right",(110,pour_y,rim+125),(60,0,0),82,"carafe")
         emit(prefix+"_tilt","Tilt the carafe above the cup","water")
         arm("right",(110,pour_y,rim+85),(60,0,0),82,"carafe")
-        state["water_ml"] += quantity
-        emit(prefix+"_pour",f"Pour {quantity:g} mL water","water",dispensing_ml=quantity,
+        delivered = min(quantity, state["carafe_remaining_ml"])
+        state["carafe_remaining_ml"] -= delivered
+        state["water_ml"] += delivered
+        emit(prefix+"_pour",f"Pour {delivered:g} mL water","water",dispensing_ml=delivered,
+             requested_ml=quantity, shortfall_ml=quantity-delivered,
              source="carafe",destination="blender_cup")
         arm("right",(110,pour_y,rim+125),(60,0,0),82,"carafe")
         emit(prefix+"_raise","Raise the tilted carafe clear","water")
@@ -245,6 +257,9 @@ def make_sequence(p):
     emit("cap_seated","Cap seated; stop at the torque target","close_blender")
     state["objects"]["blender_lid"]["held_by"] = None
     withdraw("right","cap","close_blender")
+    if plan["water_shortfall_ml"] or plan["carafe_overflow_ml"]:
+        emit("water_supply_hold","Review the carafe water supply before handoff","handoff")
+        return frames
     state["human_ready"] = True
     emit("human_ready","Ready for the human to blend and enjoy","handoff",
          "Your shake is ready to blend. Please press the blender button, then enjoy!")
